@@ -1,0 +1,42 @@
+{
+  "name": "open-source-hub-backend",
+  "description": "Open Source Hub is a platform that lists open-source projects, allowing developers to discover, contribute to, and vote on them. Users can submit projects, browse by category, and use voting and filtering mechanisms to prioritize popular projects. The goal is to connect developers with open-source opportunities effectively.",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "dev": "tsx --watch --env-file .env src/app.ts",
+    "start": "node --env-file .env dist/app.js",
+    "build": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "imports": {
+    "#*": "./src/*"
+  },
+  "dependencies": {
+    "express": "5.1.0",
+    "pg": "8.16.0",
+    "pg-hstore": "2.3.4",
+    "sequelize": "6.37.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.26.0",
+    "@tsconfig/node22": "22.0.1",
+    "@types/express": "5.0.1",
+    "@typescript-eslint/eslint-plugin": "8.32.1",
+    "@typescript-eslint/parser": "8.32.1",
+    "eslint": "9.26.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-perfectionist": "4.13.0",
+    "tsx": "4.19.4",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.32.1"
+  }
+}
