@@ -2,7 +2,14 @@
   "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./"
+    "rootDir": "./",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "target": "ES2022",
+    "module": "es2022",
+    "moduleResolution": "node",
   },
   "include": ["src/**/*.ts"],
   "exclude": ["dist"]

@@ -1,27 +1,24 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
-import perfectionist from "eslint-plugin-perfectionist";
 
 export default tseslint.config(
-  {
-    ignores: ["**/*.js"],
-  },
   eslint.configs.recommended,
-  tseslint.configs.strictTypeChecked,
-  tseslint.configs.stylisticTypeChecked,
+  tseslint.configs.recommended,
+  tseslint.configs.stylistic,
+
   {
+    ignores: ["eslint.config.js"],
+    rules: {
+      'no-trailing-spaces': 'error',
+      'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
+      'semi': ['error', 'always'],
+      'eol-last': ['error', 'always'],
+    },
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        project: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
   },
-  perfectionist.configs["recommended-natural"],
-  {
-    rules: {
-      'no-trailing-spaces': ['error'],
-      'no-multi-spaces': ['error']
-    }
-  }
 );
