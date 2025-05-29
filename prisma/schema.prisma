@@ -9,87 +9,97 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  email         String   @unique
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
   password_hash String
   name          String
   bio           String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  skills     Skill[]
-  userSkills UserSkills[]
-  projects   Project[]
-  votes      Vote[]
-  bookmarks  Bookmark[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bookmarks     Bookmark[]
+  projects      Project[]
+  userSkills    UserSkills[]
+  votes         Vote[]
+  skills        Skill[]        @relation("SkillToUser")
+  oauthAccounts OauthAccount[]
 }
 
 model Skill {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  users      User[]
+  id         Int          @id @default(autoincrement())
+  name       String       @unique
   userSkills UserSkills[]
+  users      User[]       @relation("SkillToUser")
 }
 
 model UserSkills {
-  user    User  @relation(fields: [userId], references: [id])
   userId  Int
-  skill   Skill @relation(fields: [skillId], references: [id])
   skillId Int
+  skill   Skill @relation(fields: [skillId], references: [id])
+  user    User  @relation(fields: [userId], references: [id])
 
   @@id([userId, skillId])
 }
 
-model Project {
-  id        Int      @id @default(autoincrement())
-  repo_url  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model OauthAccount {
+  id                          Int      @id @default(autoincrement())
+  provider                    Provider @default(GITHUB)
+  providerUserId              String   @unique
+  providerUserAccessTokenHash String
+  createdAt                   DateTime @default(now())
 
-  author      User?         @relation(fields: [submittedBy], references: [id])
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?
+}
+
+enum Provider {
+  GITHUB
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  repo_url    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   submittedBy Int?
-  tags        Tag[]
+  bookmarks   Bookmark[]
+  author      User?         @relation(fields: [submittedBy], references: [id])
   projectTags ProjectTags[]
   votes       Vote[]
-  bookmarks   Bookmark[]
+  tags        Tag[]         @relation("ProjectToTag")
 }
 
 model Tag {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  projects    Project[]
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
   projectTags ProjectTags[]
+  projects    Project[]     @relation("ProjectToTag")
 }
 
 model ProjectTags {
-  project   Project @relation(fields: [projectId], references: [id])
   projectId Int
-  tag       Tag     @relation(fields: [tagId], references: [id])
   tagId     Int
+  project   Project @relation(fields: [projectId], references: [id])
+  tag       Tag     @relation(fields: [tagId], references: [id])
 
   @@id([projectId, tagId])
 }
 
 model Vote {
   createdAt DateTime @default(now())
-
-  user      User    @relation(fields: [userId], references: [id])
   userId    Int
-  project   Project @relation(fields: [projectId], references: [id])
   projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@id([userId, projectId])
 }
 
 model Bookmark {
   createdAt DateTime @default(now())
-
-  user      User    @relation(fields: [userId], references: [id])
   userId    Int
-  project   Project @relation(fields: [projectId], references: [id])
   projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@id([userId, projectId])
 }
