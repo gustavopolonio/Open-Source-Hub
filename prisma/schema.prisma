@@ -41,11 +41,11 @@ model UserSkills {
 }
 
 model OauthAccount {
-  id                          Int      @id @default(autoincrement())
-  provider                    Provider @default(GITHUB)
-  providerUserId              String   @unique
-  providerUserAccessTokenHash String
-  createdAt                   DateTime @default(now())
+  id                               Int      @id @default(autoincrement())
+  provider                         Provider @default(GITHUB)
+  providerUserId                   String   @unique
+  providerUserAccessTokenEncrypted String
+  createdAt                        DateTime @default(now())
 
   user   User? @relation(fields: [userId], references: [id])
   userId Int?
