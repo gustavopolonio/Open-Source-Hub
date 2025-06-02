@@ -20,8 +20,10 @@
   "dependencies": {
     "@prisma/client": "6.8.2",
     "axios": "1.9.0",
+    "cookie-parser": "1.4.7",
     "dotenv": "16.5.0",
     "express": "5.1.0",
+    "jsonwebtoken": "9.0.2",
     "pg": "8.16.0",
     "pg-hstore": "2.3.4",
     "zod": "3.25.28"
@@ -29,7 +31,9 @@
   "devDependencies": {
     "@eslint/js": "9.26.0",
     "@tsconfig/node22": "22.0.1",
+    "@types/cookie-parser": "1.4.8",
     "@types/express": "5.0.1",
+    "@types/jsonwebtoken": "9.0.9",
     "eslint": "8.57.1",
     "prisma": "6.8.2",
     "tsx": "4.19.4",

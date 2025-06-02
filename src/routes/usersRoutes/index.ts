@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { env } from '@/env';
 import { prisma } from '@/lib/prisma';
 import { encryptSymmetric, generateGitHubAccessToken, generateRandomPassword, getGitHubUserInfo } from './helpers';
+import { authenticateWithOauth } from '@/controllers/users/authenticate';
 
 export const usersRoutes = Router();
 
@@ -89,8 +90,18 @@ usersRoutes.get('/github/callback', async (req: Request, res: Response): Promise
       }
     }
 
-    // Call /sessions to generate access_token and refresh_token
-    res.redirect('/');
+    const { token, refreshToken } = await authenticateWithOauth('GITHUB', String(gitHubId));
+
+    res
+      .status(200)
+      .cookie('refreshToken', refreshToken, {
+        path: '/',
+        secure: true,
+        httpOnly: true,
+        sameSite: true
+      })
+      .json({ token });
+    return;
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).send({ message: error });
@@ -105,6 +116,4 @@ usersRoutes.get('/github/callback', async (req: Request, res: Response): Promise
 //   res.send('Create user - register');
 // });
 
-// usersRoutes.post('/sessions', (req, res) => {
-//   res.send('Login - authenticate');
-// });
+// usersRoutes.post('/sessions', (req, res) => {});
