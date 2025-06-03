@@ -45,11 +45,13 @@ model OauthAccount {
   provider                         Provider @default(GITHUB)
   providerUserId                   String   @unique
   createdAt                        DateTime @default(now())
-  userId                           Int?
+  userId                           Int
   providerUserAccessTokenEncrypted String
   ivEncrypt                        String
   tagEncrypt                       String
-  user                             User?    @relation(fields: [userId], references: [id])
+  user                             User     @relation(fields: [userId], references: [id])
+
+  @@unique([provider, userId])
 }
 
 model Project {
