@@ -55,16 +55,23 @@ model OauthAccount {
 }
 
 model Project {
-  id          Int           @id @default(autoincrement())
-  repo_url    String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  submittedBy Int?
-  bookmarks   Bookmark[]
-  author      User?         @relation(fields: [submittedBy], references: [id])
-  projectTags ProjectTags[]
-  votes       Vote[]
-  tags        Tag[]         @relation("ProjectToTag")
+  id                  Int           @id @default(autoincrement())
+  name                String
+  description         String?
+  programmingLanguage String?
+  gitHubStars         Int
+  license             String?
+  liveLink            String?
+  avatarUrl           String?
+  repo_url            String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  submittedBy         Int
+  bookmarks           Bookmark[]
+  author              User          @relation(fields: [submittedBy], references: [id])
+  projectTags         ProjectTags[]
+  votes               Vote[]
+  tags                Tag[]         @relation("ProjectToTag")
 }
 
 model Tag {
