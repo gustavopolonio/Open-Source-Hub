@@ -6,6 +6,7 @@ export interface GitHubUser {
 }
 
 export interface GitHubRepo {
+  id: number;
   name: string;
   html_url: string;
   description: string | null;
@@ -16,6 +17,7 @@ export interface GitHubRepo {
   } | null;
   homepage: string | null;
   owner: {
+    id: number;
     avatar_url: string | null;
   };
 }
