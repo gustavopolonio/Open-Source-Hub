@@ -10,7 +10,7 @@ import {
   generateGitHubAccessToken,
   generateRandomPassword,
   getGitHubUserInfo,
-} from "./helpers";
+} from "../../utils";
 
 export const usersRoutes = Router();
 
