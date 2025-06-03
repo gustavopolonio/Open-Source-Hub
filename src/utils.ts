@@ -35,7 +35,7 @@ export async function getGitHubUserInfo(
   gitHubAccessToken: string
 ): Promise<GitHubUser> {
   try {
-    const response = await axios.get(`${env.GITHUB_BASE_URL}//user`, {
+    const response = await axios.get(`${env.GITHUB_BASE_URL}/user`, {
       headers: {
         Authorization: `Bearer ${gitHubAccessToken}`,
         Accept: "application/json",
