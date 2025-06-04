@@ -66,6 +66,7 @@ model Project {
   avatarUrl           String?
   repo_url            String
   createdAt           DateTime      @default(now())
+  gitHubCreatedAt     DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
   submittedBy         Int
   bookmarks           Bookmark[]
