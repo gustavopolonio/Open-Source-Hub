@@ -20,4 +20,5 @@ export interface GitHubRepo {
     id: number;
     avatar_url: string | null;
   };
+  created_at: string;
 }

@@ -8,6 +8,102 @@ import { env } from "@/env";
 
 export const projectsRoutes = Router();
 
+export async function getPublicProjects(req: Request, res: Response) {
+  const sortByOptions = [
+    "votes",
+    "stars",
+    "github_created_at_desc",
+    "github_created_at_asc",
+  ] as const;
+
+  const getProjectsQuerySchema = z.object({
+    search: z.string().toLowerCase().optional(),
+    language: z.string().toLowerCase().optional(),
+    sort: z.enum(sortByOptions).optional(),
+    tagIds: z
+      .string()
+      .transform((val) =>
+        val
+          .split(",")
+          .map((tag) => Number(tag.trim()))
+          .filter((tag) => !isNaN(tag))
+      )
+      .optional(),
+    page: z
+      .string()
+      .default("1")
+      .transform((val) => Number(val)),
+    limit: z
+      .string()
+      .default("10")
+      .transform((val) => Number(val)),
+  });
+
+  const { search, language, sort, tagIds, page, limit } =
+    getProjectsQuerySchema.parse(req.query);
+
+  function orderProjectsBy(): Prisma.ProjectOrderByWithRelationInput {
+    switch (sort) {
+      case "votes":
+        return { votes: { _count: "desc" } }; // Most voted
+      case "stars":
+        return { gitHubStars: "desc" }; // Most GitHub stars
+      case "github_created_at_desc":
+        return { gitHubCreatedAt: "desc" }; // Newest first
+      case "github_created_at_asc":
+        return { gitHubCreatedAt: "asc" }; // Oldest first
+      default:
+        return { votes: { _count: "desc" } }; // Most voted
+    }
+  }
+
+  try {
+    const projects = await prisma.project.findMany({
+      where: {
+        AND: [
+          {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          { programmingLanguage: language },
+          tagIds
+            ? {
+                tags: {
+                  some: {
+                    id: {
+                      in: tagIds,
+                    },
+                  },
+                },
+              }
+            : {},
+        ],
+      },
+      orderBy: orderProjectsBy(),
+      skip: (page - 1) * limit,
+      take: limit + 1, // Fetch one extra item to check if there's a next page
+    });
+
+    const hasNextPage = projects.length > limit;
+    const paginatedProjects = hasNextPage ? projects.slice(0, -1) : projects;
+
+    res.status(200).json({
+      projects: paginatedProjects,
+      nextPage: hasNextPage ? page + 1 : null,
+    });
+    return;
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send({ message: error });
+      return;
+    }
+    res.status(500).send({ message: "Unknown error" });
+    return;
+  }
+}
+
 projectsRoutes.post("/", async (req: Request, res: Response) => {
   const createProjectBodySchema = z.object({
     repoUrl: z.string().url(),
@@ -67,7 +163,8 @@ projectsRoutes.post("/", async (req: Request, res: Response) => {
         description: gitHubRepository.description,
         license: gitHubRepository.license?.name,
         liveLink: gitHubRepository.homepage,
-        programmingLanguage: gitHubRepository.language,
+        programmingLanguage: gitHubRepository.language?.toLocaleLowerCase(),
+        gitHubCreatedAt: gitHubRepository.created_at,
         tags: {
           connect: tagIds.map((id) => ({ id })),
         },
