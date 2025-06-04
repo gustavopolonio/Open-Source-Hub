@@ -4,6 +4,7 @@ import axios from "axios";
 import { prisma } from "@/lib/prisma";
 import { GitHubRepo } from "@/@types/github";
 import { env } from "@/env";
+import { Prisma } from "generated/prisma";
 
 export const projectsRoutes = Router();
 
@@ -84,3 +85,55 @@ projectsRoutes.post("/", async (req: Request, res: Response) => {
     return;
   }
 });
+
+projectsRoutes.post(
+  "/:projectId/bookmark",
+  async (req: Request, res: Response) => {
+    const createBookmarkParamsSchema = z.object({
+      projectId: z.coerce.number(),
+    });
+
+    const { projectId } = createBookmarkParamsSchema.parse(req.params);
+
+    const { userId } = req.user;
+
+    try {
+      const project = await prisma.project.findUnique({
+        where: {
+          id: projectId,
+        },
+      });
+
+      if (!project) {
+        res.status(404).send({ message: "Project not found" });
+        return;
+      }
+
+      await prisma.bookmark.create({
+        data: {
+          projectId,
+          userId,
+        },
+      });
+
+      res.status(201).json({ message: "Project bookmarked successfully" });
+      return;
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        res
+          .status(409)
+          .json({ message: "Project already bookmarked by this user" });
+      }
+
+      if (error instanceof Error) {
+        res.status(400).send({ message: error });
+        return;
+      }
+      res.status(500).send({ message: "Unknown error" });
+      return;
+    }
+  }
+);
