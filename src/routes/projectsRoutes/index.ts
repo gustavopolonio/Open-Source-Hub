@@ -188,3 +188,50 @@ projectsRoutes.delete(
     }
   }
 );
+
+projectsRoutes.post("/:projectId/vote", async (req: Request, res: Response) => {
+  const createVoteParamsSchema = z.object({
+    projectId: z.coerce.number(),
+  });
+
+  const { projectId } = createVoteParamsSchema.parse(req.params);
+
+  const { userId } = req.user;
+
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(404).send({ message: "Project not found" });
+      return;
+    }
+
+    await prisma.vote.create({
+      data: {
+        projectId,
+        userId,
+      },
+    });
+
+    res.status(201).json({ message: "Project voted successfully" });
+    return;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      res.status(409).json({ message: "Project already voted by this user" });
+    }
+
+    if (error instanceof Error) {
+      res.status(400).send({ message: error });
+      return;
+    }
+    res.status(500).send({ message: "Unknown error" });
+    return;
+  }
+});
