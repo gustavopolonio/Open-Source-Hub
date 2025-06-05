@@ -71,7 +71,7 @@ model Project {
   updatedAt           DateTime      @updatedAt
   submittedBy         Int
   bookmarks           Bookmark[]
-  author              User          @relation(fields: [submittedBy], references: [id])
+  author              User          @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
   projectTags         ProjectTags[]
   votes               Vote[]
   tags                Tag[]         @relation("ProjectToTag")
@@ -98,7 +98,7 @@ model Vote {
   userId    Int
   projectId Int
   project   Project  @relation(fields: [projectId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, projectId])
 }
@@ -108,7 +108,7 @@ model Bookmark {
   userId    Int
   projectId Int
   project   Project  @relation(fields: [projectId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, projectId])
 }
