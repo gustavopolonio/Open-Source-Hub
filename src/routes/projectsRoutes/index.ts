@@ -183,6 +183,70 @@ projectsRoutes.post("/", async (req: Request, res: Response) => {
   }
 });
 
+projectsRoutes.patch("/:projectId", async (req: Request, res: Response) => {
+  const updateProjectParamsSchema = z.object({
+    projectId: z.coerce.number(),
+  });
+
+  const { projectId } = updateProjectParamsSchema.parse(req.params);
+
+  const updateProjectBodySchema = z.object({
+    programmingLanguage: z.string().optional(),
+    liveLink: z.string().url().optional(),
+    tagIds: z.array(z.number()).optional(),
+  });
+
+  const { liveLink, programmingLanguage, tagIds } =
+    updateProjectBodySchema.parse(req.body);
+
+  const { userId } = req.user;
+
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(404).json({ message: "Project not found" });
+      return;
+    }
+
+    if (project.submittedBy !== userId) {
+      res
+        .status(403)
+        .json({ message: "User not authorized to edit this project" });
+      return;
+    }
+
+    const updatedProject = await prisma.project.update({
+      where: {
+        id: projectId,
+      },
+      data: {
+        liveLink,
+        programmingLanguage,
+        ...(tagIds && {
+          tags: {
+            set: tagIds.map((tagId) => ({ id: tagId })),
+          },
+        }),
+      },
+    });
+
+    res.status(200).json({ updatedProject });
+    return;
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send({ message: error });
+      return;
+    }
+    res.status(500).send({ message: "Unknown error" });
+    return;
+  }
+});
+
 projectsRoutes.post(
   "/:projectId/bookmark",
   async (req: Request, res: Response) => {
