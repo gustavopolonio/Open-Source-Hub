@@ -11,6 +11,6 @@
     "module": "es2022",
     "moduleResolution": "node",
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "prisma/**/*.ts"],
   "exclude": ["dist"]
 }
