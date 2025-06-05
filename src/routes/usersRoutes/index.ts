@@ -227,6 +227,56 @@ usersRoutes.patch(
   }
 );
 
+usersRoutes.get(
+  "/users/me/projects",
+  verifyJwt,
+  async (req: Request, res: Response) => {
+    const getUserProjectsQuerySchema = z.object({
+      page: z
+        .string()
+        .default("1")
+        .transform((val) => Number(val)),
+      limit: z
+        .string()
+        .default("10")
+        .transform((val) => Number(val)),
+    });
+
+    const { limit, page } = getUserProjectsQuerySchema.parse(req.query);
+
+    const { userId } = req.user;
+
+    try {
+      const projects = await prisma.project.findMany({
+        where: {
+          submittedBy: userId,
+        },
+        include: { author: true },
+        skip: (page - 1) * limit,
+        take: limit + 1, // Fetch one extra item to check if there's a next page
+      });
+
+      const hasNextPage = projects.length > limit;
+      const paginatedProjects = hasNextPage ? projects.slice(0, -1) : projects;
+
+      res
+        .status(200)
+        .json({
+          projects: paginatedProjects,
+          nextPage: hasNextPage ? page + 1 : null,
+        });
+      return;
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).send({ message: error });
+        return;
+      }
+      res.status(500).send({ message: "Unknown error" });
+      return;
+    }
+  }
+);
+
 // usersRoutes.post('/users', (req, res) => {
 //   res.send('Create user - register');
 // });
