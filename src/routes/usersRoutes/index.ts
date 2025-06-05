@@ -89,7 +89,7 @@ usersRoutes.get(
           await prisma.user.create({
             data: {
               email: gitHubEmail,
-              password_hash: password,
+              passwordHash: password,
               name: gitHubName,
               oauthAccounts: {
                 create: [

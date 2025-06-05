@@ -11,9 +11,10 @@ datasource db {
 model User {
   id            Int            @id @default(autoincrement())
   email         String         @unique
-  password_hash String
+  passwordHash  String
   name          String
   bio           String?
+  avatarUrl     String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   bookmarks     Bookmark[]
@@ -64,7 +65,7 @@ model Project {
   license             String?
   liveLink            String?
   avatarUrl           String?
-  repo_url            String
+  repoUrl             String
   createdAt           DateTime      @default(now())
   gitHubCreatedAt     DateTime      @default(now())
   updatedAt           DateTime      @updatedAt

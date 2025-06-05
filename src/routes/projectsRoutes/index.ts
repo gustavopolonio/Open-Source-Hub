@@ -157,7 +157,7 @@ projectsRoutes.post("/", async (req: Request, res: Response) => {
         gitHubProjectId: gitHubRepository.id,
         name: gitHubRepository.name,
         gitHubStars: gitHubRepository.stargazers_count,
-        repo_url: repoUrl,
+        repoUrl: repoUrl,
         submittedBy: userId,
         avatarUrl: gitHubRepository.owner.avatar_url,
         description: gitHubRepository.description,
