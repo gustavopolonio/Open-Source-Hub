@@ -247,6 +247,52 @@ projectsRoutes.patch("/:projectId", async (req: Request, res: Response) => {
   }
 });
 
+projectsRoutes.delete("/:projectId", async (req: Request, res: Response) => {
+  const deleteProjectParamsSchema = z.object({
+    projectId: z.coerce.number(),
+  });
+
+  const { projectId } = deleteProjectParamsSchema.parse(req.params);
+
+  const { userId } = req.user;
+
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(404).json({ message: "Project not found" });
+      return;
+    }
+
+    if (project.submittedBy !== userId) {
+      res
+        .status(403)
+        .json({ message: "User not authorized to delete this project" });
+      return;
+    }
+
+    await prisma.project.delete({
+      where: {
+        id: projectId,
+      },
+    });
+
+    res.status(200).json({ message: "Project deleted" });
+    return;
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send({ message: error });
+      return;
+    }
+    res.status(500).send({ message: "Unknown error" });
+    return;
+  }
+});
+
 projectsRoutes.post(
   "/:projectId/bookmark",
   async (req: Request, res: Response) => {
