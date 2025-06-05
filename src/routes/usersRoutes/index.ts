@@ -227,6 +227,32 @@ usersRoutes.patch(
   }
 );
 
+usersRoutes.delete(
+  "/users/me",
+  verifyJwt,
+  async (req: Request, res: Response) => {
+    const { userId } = req.user;
+
+    try {
+      await prisma.user.delete({
+        where: {
+          id: userId,
+        },
+      });
+
+      res.status(200).json({ message: "User deleted" });
+      return;
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).send({ message: error });
+        return;
+      }
+      res.status(500).send({ message: "Unknown error" });
+      return;
+    }
+  }
+);
+
 usersRoutes.get(
   "/users/me/projects",
   verifyJwt,
