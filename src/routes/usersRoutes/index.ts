@@ -5,6 +5,7 @@ import { env } from "@/env";
 import { prisma } from "@/lib/prisma";
 import { authenticateWithOauth } from "@/controllers/users/authenticate";
 import { JwtPayload } from "@/@types/auth";
+import { verifyJwt } from "@/middlewares/verify-jwt";
 import {
   encryptSymmetric,
   generateGitHubAccessToken,
@@ -178,6 +179,53 @@ usersRoutes.patch("/token/refresh", async (req: Request, res: Response) => {
     return;
   }
 });
+
+usersRoutes.patch(
+  "/users/me",
+  verifyJwt,
+  async (req: Request, res: Response) => {
+    const updateUserBodySchema = z.object({
+      name: z.string().optional(),
+      bio: z.string().optional(),
+      avatarUrl: z.string().url().optional(),
+      skillIds: z.array(z.number()).optional(),
+    });
+
+    const { avatarUrl, bio, name, skillIds } = updateUserBodySchema.parse(
+      req.body
+    );
+
+    const { userId } = req.user;
+
+    try {
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          name,
+          bio,
+          avatarUrl,
+          ...(skillIds && {
+            skills: {
+              set: skillIds.map((skillId) => ({ id: skillId })),
+            },
+          }),
+        },
+      });
+
+      res.status(200).json({ updatedUser });
+      return;
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).send({ message: error });
+        return;
+      }
+      res.status(500).send({ message: "Unknown error" });
+      return;
+    }
+  }
+);
 
 // usersRoutes.post('/users', (req, res) => {
 //   res.send('Create user - register');
