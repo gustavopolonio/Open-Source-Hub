@@ -9,6 +9,7 @@ const envSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string(),
   GITHUB_ACCESS_TOKEN_ENCRYPT_KEY: z.string(),
   JWT_SECRET: z.string(),
+  FRONTEND_BASE_URL: z.string().url(),
 });
 
 const _env = envSchema.safeParse(process.env);

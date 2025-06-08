@@ -120,7 +120,7 @@ usersRoutes.get(
           httpOnly: true,
           sameSite: true,
         })
-        .json({ token });
+        .redirect(`${env.FRONTEND_BASE_URL}/auth/callback?token=${token}`);
       return;
     } catch (error) {
       if (error instanceof Error) {
