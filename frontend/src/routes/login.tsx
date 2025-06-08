@@ -14,9 +14,11 @@ function Login() {
         <span className="block">Open Source Hub</span>
       </Typography>
       <Button size="lg" variant="secondary" className="w-80 font-bold" asChild>
-        <Link to="https://github.com/login/oauth/authorize?client_id=Iv23lihzv6YIdLtC83FE">
+        <a
+          href={`${import.meta.env.VITE_GITHUB_BASE_URL}/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}`}
+        >
           Continue with GitHub
-        </Link>
+        </a>
       </Button>
       <Typography variant="p">
         Don't have an account?{" "}
