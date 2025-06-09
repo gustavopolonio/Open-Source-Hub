@@ -81,6 +81,12 @@ export async function getPublicProjects(req: Request, res: Response) {
             : {},
         ],
       },
+      include: {
+        tags: true,
+        _count: {
+          select: { votes: true },
+        },
+      },
       orderBy: orderProjectsBy(),
       skip: (page - 1) * limit,
       take: limit + 1, // Fetch one extra item to check if there's a next page
