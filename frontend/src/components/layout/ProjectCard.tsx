@@ -22,14 +22,14 @@ type Tag = {
 };
 
 type ProjectCardProps = {
-  logoUrl: string;
+  logoUrl: string | null;
   title: string;
   license: string | null;
-  description: string;
-  liveLink: string;
+  description: string | null;
+  liveLink: string | null;
   gitHubStars: number;
   votes: number;
-  programmingLanguage: string;
+  programmingLanguage: string | null;
   gitHubRepoUrl: string;
   tags: Tag[];
 };
@@ -47,29 +47,36 @@ export function ProjectCard({
   tags,
 }: ProjectCardProps) {
   return (
-    <a href={gitHubRepoUrl} target="_blank">
-      <Card className="transition-transform duration-200 gap-3 hover:shadow-[var(--shadow-xl)]">
+    <div className="relative rounded-xl shadow-sm hover:shadow-[var(--shadow-xl)]">
+      <a href={gitHubRepoUrl} target="_blank" className="absolute inset-0" />
+      <Card className="transition-transform duration-200 gap-3 h-full">
         <CardHeader className="grid-cols-[auto_1fr_auto]!">
-          <img src={logoUrl} alt={title} className="w-12 h-auto rounded-sm" />
-          <div className="min-h-[52px] flex flex-col justify-center">
-            <CardTitle className="line-clamp-2">{title}</CardTitle>
+          <img
+            src={logoUrl || "https://github.com/evilrabbit.png"}
+            alt={title}
+            className="w-12 h-auto rounded-sm"
+          />
+          <div className="min-h-[52px] flex flex-col justify-center gap-1">
+            <CardTitle className="line-clamp-2 break-all">{title}</CardTitle>
             <CardDescription className="line-clamp-1">
               {license || "No license"}
             </CardDescription>
           </div>
           <CardAction className="col-start-3 flex items-center gap-2.5 ml-2">
             <Tooltip>
-              <TooltipTrigger className="w-5 h-5 rounded-full border-2 border-[var(--primary)] bg-[var(--secondary)]"></TooltipTrigger>
+              <TooltipTrigger className="z-10 w-5 h-5 rounded-full border-2 border-[var(--primary)] bg-[var(--secondary)]"></TooltipTrigger>
               <TooltipContent className="py-2.5">
                 <p className="flex gap-1">
                   {tags.map((tag) => (
-                    <Badge variant="secondary">{tag.name}</Badge>
+                    <Badge key={tag.name} variant="secondary">
+                      {tag.name}
+                    </Badge>
                   ))}
                 </p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger className="z-10">
                 {/* @to-do: if/else fill bookmark if user already bookmarked project */}
                 <Icon name="bookmark" outlineColor="primary" />
               </TooltipTrigger>
@@ -83,7 +90,11 @@ export function ProjectCard({
             {description}
           </Typography>
           {liveLink ? (
-            <Button variant="link" className="p-0">
+            <Button
+              variant="link"
+              className="p-0 line-clamp-1 relative z-10"
+              asChild
+            >
               <a href={liveLink} target="_blank">
                 {liveLink}
               </a>
@@ -100,7 +111,7 @@ export function ProjectCard({
         <CardFooter className="flex gap-4">
           <div className="flex items-center gap-1">
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger className="z-10">
                 <Icon
                   name="star"
                   outlineColor="oklch(90.5% 0.182 98.111)"
@@ -113,7 +124,7 @@ export function ProjectCard({
           </div>
           <div className="flex items-center gap-1">
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger className="z-10">
                 {/* @to-do: if/else fill triangle if user already voted on project */}
                 <Icon
                   name="triangle"
@@ -125,11 +136,13 @@ export function ProjectCard({
             </Tooltip>
             {votes}
           </div>
-          <Badge variant="secondary" className="ml-auto">
-            {programmingLanguage}
-          </Badge>
+          {programmingLanguage && (
+            <Badge variant="secondary" className="ml-auto">
+              {programmingLanguage}
+            </Badge>
+          )}
         </CardFooter>
       </Card>
-    </a>
+    </div>
   );
 }
