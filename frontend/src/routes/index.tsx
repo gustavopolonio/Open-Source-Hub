@@ -1,162 +1,73 @@
+import React from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import axios from "axios";
 import { Typography } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { ProjectCard } from "@/components/layout/ProjectCard";
+import { ProjectCardSkeleton } from "@/components/layout/ProjectCardSkeleton";
+
+type Tag = {
+  name: string;
+};
+
+type Project = {
+  id: number;
+  name: string;
+  description: string | null;
+  repoUrl: string;
+  gitHubStars: number;
+  license: string | null;
+  liveLink: string | null;
+  avatarUrl: string | null;
+  programmingLanguage: string | null;
+  tags: Tag[];
+  _count: {
+    votes: number;
+  };
+};
+
+type GetProjectsResponse = {
+  nextPage: number | null;
+  projects: Project[];
+};
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const projects = [
-  {
-    id: 12,
-    gitHubProjectId: 607266881,
-    name: "formulario-html-css e javascript com tudo o que vc possa imaginar",
-    description: "Formulário criado usando HTML, CSS e JavaScript.",
-    programmingLanguage: "javascript",
-    gitHubStars: 1,
-    license: null,
-    liveLink: "https://google.com",
-    avatarUrl: "https://avatars.githubusercontent.com/u/69776883?v=4",
-    repo_url: "https://github.com/gustavopolonio/formulario-html-css",
-    createdAt: "2025-06-04T16:34:02.919Z",
-    gitHubCreatedAt: "2025-06-04T15:23:01.650Z",
-    updatedAt: "2025-06-04T18:28:36.062Z",
-    submittedBy: 1,
-    tags: [
-      {
-        id: 3,
-        name: "typescript",
+async function getProjects({
+  pageParam,
+}: {
+  pageParam: number;
+}): Promise<GetProjectsResponse> {
+  const response = await axios.get(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/projects`,
+    {
+      params: {
+        limit: 6,
+        page: pageParam,
       },
-      {
-        id: 5,
-        name: "css",
-      },
-    ],
-    _count: {
-      votes: 0,
-    },
-  },
-  {
-    id: 4,
-    gitHubProjectId: 907161649,
-    name: "adopto",
-    description:
-      "API  for animal adoption - Node + Fastify, API  for animal adoption - Node + Fastify , API  for animal adoption - Node + Fastify",
-    programmingLanguage: "javascript",
-    gitHubStars: 0,
-    license: "MIT License License LicenseLicense",
-    liveLink: "",
-    avatarUrl: "https://avatars.githubusercontent.com/u/69776883?v=4",
-    repo_url: "https://github.com/gustavopolonio/adopto",
-    createdAt: "2025-06-03T22:18:49.208Z",
-    gitHubCreatedAt: "2025-06-04T15:23:02.650Z",
-    updatedAt: "2025-06-04T17:19:43.473Z",
-    submittedBy: 1,
-    tags: [
-      {
-        id: 1,
-        name: "beginner-friendly",
-      },
-      {
-        id: 4,
-        name: "html",
-      },
-    ],
-    _count: {
-      votes: 3,
-    },
-  },
-  {
-    id: 12,
-    gitHubProjectId: 607266881,
-    name: "formulario-html-css",
-    description: "Formulário criado usando HTML, CSS e JavaScript.",
-    programmingLanguage: "javascript",
-    gitHubStars: 1,
-    license: null,
-    liveLink: "https://google.com",
-    avatarUrl: "https://avatars.githubusercontent.com/u/69776883?v=4",
-    repo_url: "https://github.com/gustavopolonio/formulario-html-css",
-    createdAt: "2025-06-04T16:34:02.919Z",
-    gitHubCreatedAt: "2025-06-04T15:23:01.650Z",
-    updatedAt: "2025-06-04T18:28:36.062Z",
-    submittedBy: 1,
-    tags: [
-      {
-        id: 3,
-        name: "typescript",
-      },
-      {
-        id: 5,
-        name: "css",
-      },
-    ],
-    _count: {
-      votes: 0,
-    },
-  },
-  {
-    id: 12,
-    gitHubProjectId: 607266881,
-    name: "formulario-html-css",
-    description: "Formulário criado usando HTML, CSS e JavaScript.",
-    programmingLanguage: "javascript",
-    gitHubStars: 1,
-    license: null,
-    liveLink: "https://google.com",
-    avatarUrl: "https://avatars.githubusercontent.com/u/69776883?v=4",
-    repo_url: "https://github.com/gustavopolonio/formulario-html-css",
-    createdAt: "2025-06-04T16:34:02.919Z",
-    gitHubCreatedAt: "2025-06-04T15:23:01.650Z",
-    updatedAt: "2025-06-04T18:28:36.062Z",
-    submittedBy: 1,
-    tags: [
-      {
-        id: 3,
-        name: "typescript",
-      },
-      {
-        id: 5,
-        name: "css",
-      },
-    ],
-    _count: {
-      votes: 0,
-    },
-  },
-  {
-    id: 12,
-    gitHubProjectId: 607266881,
-    name: "formulario-html-css",
-    description: "Formulário criado usando HTML, CSS e JavaScript.",
-    programmingLanguage: "javascript",
-    gitHubStars: 1,
-    license: null,
-    liveLink: "https://google.com",
-    avatarUrl: "https://avatars.githubusercontent.com/u/69776883?v=4",
-    repo_url: "https://github.com/gustavopolonio/formulario-html-css",
-    createdAt: "2025-06-04T16:34:02.919Z",
-    gitHubCreatedAt: "2025-06-04T15:23:01.650Z",
-    updatedAt: "2025-06-04T18:28:36.062Z",
-    submittedBy: 1,
-    tags: [
-      {
-        id: 3,
-        name: "typescript",
-      },
-      {
-        id: 5,
-        name: "css",
-      },
-    ],
-    _count: {
-      votes: 0,
-    },
-  },
-];
+    }
+  );
+  return response.data;
+}
 
 function Index() {
+  const {
+    data,
+    isPending,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["projects"],
+    queryFn: getProjects,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  });
+
   return (
     <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
       <div className="max-w-2xl mx-auto space-y-8">
@@ -178,24 +89,52 @@ function Index() {
       </div>
       <div className="space-y-8">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
-          {projects.map((project) => (
-            <ProjectCard
-              description={project.description}
-              gitHubRepoUrl={project.repo_url}
-              gitHubStars={project.gitHubStars}
-              license={project.license}
-              liveLink={project.liveLink}
-              logoUrl={project.avatarUrl}
-              programmingLanguage={project.programmingLanguage}
-              title={project.name}
-              votes={project._count.votes}
-              tags={project.tags}
-            />
-          ))}
+          {isError ? (
+            <div className="col-span-full text-center text-destructive">
+              <Typography variant="p">Failed to load projects :(</Typography>
+            </div>
+          ) : isPending ? (
+            <>
+              <ProjectCardSkeleton />
+              <ProjectCardSkeleton />
+              <ProjectCardSkeleton />
+              <ProjectCardSkeleton />
+              <ProjectCardSkeleton />
+              <ProjectCardSkeleton />
+            </>
+          ) : (
+            data.pages.map((group, i) => (
+              <React.Fragment key={i}>
+                {group.projects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    description={project.description}
+                    gitHubRepoUrl={project.repoUrl}
+                    gitHubStars={project.gitHubStars}
+                    license={project.license}
+                    liveLink={project.liveLink}
+                    logoUrl={project.avatarUrl}
+                    programmingLanguage={project.programmingLanguage}
+                    title={project.name}
+                    votes={project._count.votes}
+                    tags={project.tags}
+                  />
+                ))}
+              </React.Fragment>
+            ))
+          )}
         </div>
-        <Button className="font-bold flex mx-auto" size="xlg" variant="outline">
-          Load more...
-        </Button>
+        {hasNextPage && !isError && (
+          <Button
+            className="font-bold flex mx-auto"
+            size="xlg"
+            variant="outline"
+            disabled={isPending || isFetchingNextPage}
+            onClick={() => fetchNextPage()}
+          >
+            {isFetchingNextPage ? "Loading ..." : "Load more..."}
+          </Button>
+        )}
       </div>
       <div className="max-w-2xl mx-auto space-y-4">
         <Typography variant="h2" className="text-center mt-12">
