@@ -1,11 +1,11 @@
 import React from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import axios from "axios";
 import { Typography } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { ProjectCard } from "@/components/layout/ProjectCard";
 import { ProjectCardSkeleton } from "@/components/layout/ProjectCardSkeleton";
+import { api } from "@/lib/axios";
 
 type Tag = {
   name: string;
@@ -41,7 +41,7 @@ async function getProjects({
 }: {
   pageParam: number;
 }): Promise<GetProjectsResponse> {
-  const response = await axios.get(
+  const response = await api.get(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/projects`,
     {
       params: {
