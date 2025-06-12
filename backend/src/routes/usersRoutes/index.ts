@@ -116,7 +116,7 @@ usersRoutes.get(
         .status(200)
         .cookie("refreshToken", refreshToken, {
           path: "/",
-          secure: true,
+          secure: env.NODE_ENV === "production",
           httpOnly: true,
           sameSite: true,
         })
