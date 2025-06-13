@@ -182,6 +182,37 @@ usersRoutes.patch("/token/refresh", async (req: Request, res: Response) => {
   }
 });
 
+usersRoutes.get("/users/me", verifyJwt, async (req: Request, res: Response) => {
+  const { userId } = req.user;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      omit: {
+        id: true,
+        passwordHash: true,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ user });
+    return;
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send({ message: error });
+      return;
+    }
+    res.status(500).send({ message: "Unknown error" });
+    return;
+  }
+});
+
 usersRoutes.patch(
   "/users/me",
   verifyJwt,
