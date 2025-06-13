@@ -119,6 +119,7 @@ usersRoutes.get(
           secure: env.NODE_ENV === "production",
           httpOnly: true,
           sameSite: true,
+          maxAge: 60 * 60 * 24 * 7, // 7 days
         })
         .redirect(`${env.FRONTEND_BASE_URL}/auth/callback?token=${token}`);
       return;
@@ -168,9 +169,10 @@ usersRoutes.patch("/token/refresh", async (req: Request, res: Response) => {
       .status(200)
       .cookie("refreshToken", refreshToken, {
         path: "/",
-        secure: true,
+        secure: env.NODE_ENV === "production",
         httpOnly: true,
         sameSite: true,
+        maxAge: 60 * 60 * 24 * 7, // 7 days
       })
       .json({ token });
     return;
