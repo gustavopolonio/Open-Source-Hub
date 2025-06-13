@@ -1,11 +1,10 @@
-import { env } from "./env";
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { verifyJwt } from "./middlewares/verify-jwt";
-import { usersRoutes } from "./routes/usersRoutes";
-import { githubRoutes } from "./routes/githubRoutes";
-import { getPublicProjects, projectsRoutes } from "./routes/projectsRoutes";
+import { env } from "./env";
+import { usersRoutes } from "./routes/users.routes";
+import { githubRoutes } from "./routes/github.routes";
+import { projectsRoutes } from "./routes/projects.routes";
 
 const app = express();
 app.use(express.json());
@@ -18,10 +17,8 @@ app.use(
 );
 
 app.use("/", usersRoutes);
-app.use("/github", verifyJwt, githubRoutes);
-
-app.get("/projects", getPublicProjects);
-app.use("/projects", verifyJwt, projectsRoutes);
+app.use("/github", githubRoutes);
+app.use("/projects", projectsRoutes);
 
 app.listen(env.PORT, () => {
   console.log(`App listening on port: ${env.PORT}`);

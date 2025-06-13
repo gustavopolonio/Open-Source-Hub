@@ -1,14 +1,15 @@
-import { Router, Request, Response } from "express";
+import { Request, Response } from "express";
 import axios from "axios";
-import { decryptSymmetric } from "../../utils";
-import { env } from "@/env";
-import { GitHubRepo } from "@/@types/github";
 import { prisma } from "@/lib/prisma";
+import { env } from "@/env";
+import { decryptSymmetric } from "@/utils";
+import { GitHubRepo } from "@/@types/github";
 
-export const githubRoutes = Router();
-
-githubRoutes.get("/user/repos", async (req: Request, res: Response) => {
-  const { userId } = req.user;
+export async function getAuthenticatedUserGithubRepos(
+  req: Request,
+  res: Response
+) {
+  const userId = Number(req.user.userId);
 
   try {
     const userOauth = await prisma.oauthAccount.findUnique({
@@ -51,4 +52,4 @@ githubRoutes.get("/user/repos", async (req: Request, res: Response) => {
     res.status(500).send({ message: "Unknown error" });
     return;
   }
-});
+}

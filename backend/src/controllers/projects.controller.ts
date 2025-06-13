@@ -1,12 +1,10 @@
-import { Router, Request, Response } from "express";
+import { Request, Response } from "express";
 import z from "zod";
 import axios from "axios";
-import { Prisma } from "generated/prisma";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "generated/prisma";
 import { GitHubRepo } from "@/@types/github";
 import { env } from "@/env";
-
-export const projectsRoutes = Router();
 
 export async function getPublicProjects(req: Request, res: Response) {
   const sortByOptions = [
@@ -110,7 +108,7 @@ export async function getPublicProjects(req: Request, res: Response) {
   }
 }
 
-projectsRoutes.post("/", async (req: Request, res: Response) => {
+export async function createProject(req: Request, res: Response) {
   const createProjectBodySchema = z.object({
     repoUrl: z.string().url(),
     tagIds: z.array(z.number()),
@@ -118,7 +116,8 @@ projectsRoutes.post("/", async (req: Request, res: Response) => {
 
   const { repoUrl, tagIds } = createProjectBodySchema.parse(req.body);
 
-  const { userId } = req.user;
+  const userId = Number(req.user.userId);
+
   const [owner, repo] = new URL(repoUrl).pathname.slice(1).split("/");
 
   try {
@@ -187,9 +186,9 @@ projectsRoutes.post("/", async (req: Request, res: Response) => {
     res.status(500).send({ message: "Unknown error" });
     return;
   }
-});
+}
 
-projectsRoutes.patch("/:projectId", async (req: Request, res: Response) => {
+export async function updateProject(req: Request, res: Response) {
   const updateProjectParamsSchema = z.object({
     projectId: z.coerce.number(),
   });
@@ -205,7 +204,7 @@ projectsRoutes.patch("/:projectId", async (req: Request, res: Response) => {
   const { liveLink, programmingLanguage, tagIds } =
     updateProjectBodySchema.parse(req.body);
 
-  const { userId } = req.user;
+  const userId = Number(req.user.userId);
 
   try {
     const project = await prisma.project.findUnique({
@@ -251,16 +250,16 @@ projectsRoutes.patch("/:projectId", async (req: Request, res: Response) => {
     res.status(500).send({ message: "Unknown error" });
     return;
   }
-});
+}
 
-projectsRoutes.delete("/:projectId", async (req: Request, res: Response) => {
+export async function deleteProject(req: Request, res: Response) {
   const deleteProjectParamsSchema = z.object({
     projectId: z.coerce.number(),
   });
 
   const { projectId } = deleteProjectParamsSchema.parse(req.params);
 
-  const { userId } = req.user;
+  const userId = Number(req.user.userId);
 
   try {
     const project = await prisma.project.findUnique({
@@ -297,119 +296,113 @@ projectsRoutes.delete("/:projectId", async (req: Request, res: Response) => {
     res.status(500).send({ message: "Unknown error" });
     return;
   }
-});
+}
 
-projectsRoutes.post(
-  "/:projectId/bookmark",
-  async (req: Request, res: Response) => {
-    const createBookmarkParamsSchema = z.object({
-      projectId: z.coerce.number(),
+export async function bookmarkProject(req: Request, res: Response) {
+  const createBookmarkParamsSchema = z.object({
+    projectId: z.coerce.number(),
+  });
+
+  const { projectId } = createBookmarkParamsSchema.parse(req.params);
+
+  const userId = Number(req.user.userId);
+
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
     });
 
-    const { projectId } = createBookmarkParamsSchema.parse(req.params);
-
-    const { userId } = req.user;
-
-    try {
-      const project = await prisma.project.findUnique({
-        where: {
-          id: projectId,
-        },
-      });
-
-      if (!project) {
-        res.status(404).send({ message: "Project not found" });
-        return;
-      }
-
-      await prisma.bookmark.create({
-        data: {
-          projectId,
-          userId,
-        },
-      });
-
-      res.status(201).json({ message: "Project bookmarked successfully" });
-      return;
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        res
-          .status(409)
-          .json({ message: "Project already bookmarked by this user" });
-      }
-
-      if (error instanceof Error) {
-        res.status(400).send({ message: error });
-        return;
-      }
-      res.status(500).send({ message: "Unknown error" });
+    if (!project) {
+      res.status(404).send({ message: "Project not found" });
       return;
     }
-  }
-);
 
-projectsRoutes.delete(
-  "/:projectId/bookmark",
-  async (req: Request, res: Response) => {
-    const deleteBookmarkParamsSchema = z.object({
-      projectId: z.coerce.number(),
+    await prisma.bookmark.create({
+      data: {
+        projectId,
+        userId,
+      },
     });
 
-    const { projectId } = deleteBookmarkParamsSchema.parse(req.params);
+    res.status(201).json({ message: "Project bookmarked successfully" });
+    return;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      res
+        .status(409)
+        .json({ message: "Project already bookmarked by this user" });
+    }
 
-    const { userId } = req.user;
-
-    try {
-      const project = await prisma.project.findUnique({
-        where: {
-          id: projectId,
-        },
-      });
-
-      if (!project) {
-        res.status(404).send({ message: "Project not found" });
-        return;
-      }
-
-      await prisma.bookmark.delete({
-        where: {
-          userId_projectId: { userId, projectId },
-        },
-      });
-
-      res.status(200).json({ message: "Project bookmark removed" });
-      return;
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2025"
-      ) {
-        res
-          .status(409)
-          .json({ message: "Project is not bookmarked by this user" });
-      }
-
-      if (error instanceof Error) {
-        res.status(400).send({ message: error });
-        return;
-      }
-      res.status(500).send({ message: "Unknown error" });
+    if (error instanceof Error) {
+      res.status(400).send({ message: error });
       return;
     }
+    res.status(500).send({ message: "Unknown error" });
+    return;
   }
-);
+}
 
-projectsRoutes.post("/:projectId/vote", async (req: Request, res: Response) => {
+export async function unbookmarkProject(req: Request, res: Response) {
+  const deleteBookmarkParamsSchema = z.object({
+    projectId: z.coerce.number(),
+  });
+
+  const { projectId } = deleteBookmarkParamsSchema.parse(req.params);
+
+  const userId = Number(req.user.userId);
+
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (!project) {
+      res.status(404).send({ message: "Project not found" });
+      return;
+    }
+
+    await prisma.bookmark.delete({
+      where: {
+        userId_projectId: { userId, projectId },
+      },
+    });
+
+    res.status(200).json({ message: "Project bookmark removed" });
+    return;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      res
+        .status(409)
+        .json({ message: "Project is not bookmarked by this user" });
+    }
+
+    if (error instanceof Error) {
+      res.status(400).send({ message: error });
+      return;
+    }
+    res.status(500).send({ message: "Unknown error" });
+    return;
+  }
+}
+
+export async function voteOnProject(req: Request, res: Response) {
   const createVoteParamsSchema = z.object({
     projectId: z.coerce.number(),
   });
 
   const { projectId } = createVoteParamsSchema.parse(req.params);
 
-  const { userId } = req.user;
+  const userId = Number(req.user.userId);
 
   try {
     const project = await prisma.project.findUnique({
@@ -447,53 +440,50 @@ projectsRoutes.post("/:projectId/vote", async (req: Request, res: Response) => {
     res.status(500).send({ message: "Unknown error" });
     return;
   }
-});
+}
 
-projectsRoutes.delete(
-  "/:projectId/vote",
-  async (req: Request, res: Response) => {
-    const deleteVoteParamsSchema = z.object({
-      projectId: z.coerce.number(),
+export async function unvoteOnProject(req: Request, res: Response) {
+  const deleteVoteParamsSchema = z.object({
+    projectId: z.coerce.number(),
+  });
+
+  const { projectId } = deleteVoteParamsSchema.parse(req.params);
+
+  const userId = Number(req.user.userId);
+
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
     });
 
-    const { projectId } = deleteVoteParamsSchema.parse(req.params);
-
-    const { userId } = req.user;
-
-    try {
-      const project = await prisma.project.findUnique({
-        where: {
-          id: projectId,
-        },
-      });
-
-      if (!project) {
-        res.status(404).send({ message: "Project not found" });
-        return;
-      }
-
-      await prisma.vote.delete({
-        where: {
-          userId_projectId: { userId, projectId },
-        },
-      });
-
-      res.status(200).json({ message: "Project vote removed" });
-      return;
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2025"
-      ) {
-        res.status(409).json({ message: "Project is not voted by this user" });
-      }
-
-      if (error instanceof Error) {
-        res.status(400).send({ message: error });
-        return;
-      }
-      res.status(500).send({ message: "Unknown error" });
+    if (!project) {
+      res.status(404).send({ message: "Project not found" });
       return;
     }
+
+    await prisma.vote.delete({
+      where: {
+        userId_projectId: { userId, projectId },
+      },
+    });
+
+    res.status(200).json({ message: "Project vote removed" });
+    return;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      res.status(409).json({ message: "Project is not voted by this user" });
+    }
+
+    if (error instanceof Error) {
+      res.status(400).send({ message: error });
+      return;
+    }
+    res.status(500).send({ message: "Unknown error" });
+    return;
   }
-);
+}
