@@ -1,5 +1,6 @@
 import { Typography } from "../ui/typography";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "../ui/button";
 import { Icon } from "../ui/icon";
 import {
@@ -46,6 +47,8 @@ export function ProjectCard({
   gitHubRepoUrl,
   tags,
 }: ProjectCardProps) {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="relative rounded-xl shadow-sm hover:shadow-[var(--shadow-xl)]">
       <a href={gitHubRepoUrl} target="_blank" className="absolute inset-0" />
@@ -75,14 +78,16 @@ export function ProjectCard({
                 </p>
               </TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger className="z-10">
-                {/* @to-do: if/else fill bookmark if user already bookmarked project */}
-                <Icon name="bookmark" outlineColor="primary" />
-              </TooltipTrigger>
-              {/* @to-do: if/else update text to bookmarked if user already bookmarked project */}
-              <TooltipContent>Bookmark</TooltipContent>
-            </Tooltip>
+            {isAuthenticated && (
+              <Tooltip>
+                <TooltipTrigger className="z-10">
+                  {/* @to-do: if/else fill bookmark if user already bookmarked project */}
+                  <Icon name="bookmark" outlineColor="primary" />
+                </TooltipTrigger>
+                {/* @to-do: if/else update text to bookmarked if user already bookmarked project */}
+                <TooltipContent>Bookmark</TooltipContent>
+              </Tooltip>
+            )}
           </CardAction>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -125,6 +130,7 @@ export function ProjectCard({
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger className="z-10">
+                {/* Only let vote if authenticated */}
                 {/* @to-do: if/else fill triangle if user already voted on project */}
                 <Icon
                   name="triangle"
