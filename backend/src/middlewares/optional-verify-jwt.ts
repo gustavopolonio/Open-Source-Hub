@@ -17,7 +17,7 @@ export function optionalVerifyJwt(
       req.user = {
         userId: undefined,
       };
-      next();
+      return next();
     }
 
     try {
@@ -25,7 +25,7 @@ export function optionalVerifyJwt(
       req.user = {
         userId: payload.userId,
       };
-      next();
+      return next();
     } catch {
       req.user = {
         userId: undefined,
@@ -37,5 +37,5 @@ export function optionalVerifyJwt(
     };
   }
 
-  next();
+  return next();
 }
