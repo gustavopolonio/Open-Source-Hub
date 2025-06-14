@@ -32,6 +32,7 @@ type ProjectCardProps = {
   votes: number;
   programmingLanguage: string | null;
   gitHubRepoUrl: string;
+  isBookmarked?: boolean;
   tags: Tag[];
 };
 
@@ -46,6 +47,7 @@ export function ProjectCard({
   votes,
   gitHubRepoUrl,
   tags,
+  isBookmarked,
 }: ProjectCardProps) {
   const { isAuthenticated } = useAuth();
 
@@ -81,11 +83,15 @@ export function ProjectCard({
             {isAuthenticated && (
               <Tooltip>
                 <TooltipTrigger className="z-10">
-                  {/* @to-do: if/else fill bookmark if user already bookmarked project */}
-                  <Icon name="bookmark" outlineColor="primary" />
+                  <Icon
+                    name="bookmark"
+                    outlineColor="primary"
+                    fill={isBookmarked ? "primary" : "transparent"}
+                  />
                 </TooltipTrigger>
-                {/* @to-do: if/else update text to bookmarked if user already bookmarked project */}
-                <TooltipContent>Bookmark</TooltipContent>
+                <TooltipContent>
+                  {isBookmarked ? "Bookmarked" : "Bookmark"}
+                </TooltipContent>
               </Tooltip>
             )}
           </CardAction>

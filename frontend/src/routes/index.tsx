@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { ProjectCard } from "@/components/layout/ProjectCard";
 import { ProjectCardSkeleton } from "@/components/layout/ProjectCardSkeleton";
 import { api } from "@/lib/axios";
+import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
+import { useAuth } from "@/hooks/useAuth";
 
 type Tag = {
   name: string;
@@ -25,6 +27,7 @@ type Project = {
   _count: {
     votes: number;
   };
+  isBookmarked?: boolean;
 };
 
 type GetProjectsResponse = {
@@ -36,24 +39,11 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-async function getProjects({
-  pageParam,
-}: {
-  pageParam: number;
-}): Promise<GetProjectsResponse> {
-  const response = await api.get(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/projects`,
-    {
-      params: {
-        limit: 6,
-        page: pageParam,
-      },
-    }
-  );
-  return response.data;
-}
-
 function Index() {
+  const axiosPrivate = useAxiosPrivate();
+  const { isAuthenticated } = useAuth();
+  const axiosInstance = isAuthenticated ? axiosPrivate : api;
+
   const {
     data,
     isPending,
@@ -63,7 +53,22 @@ function Index() {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["projects"],
-    queryFn: getProjects,
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: number;
+    }): Promise<GetProjectsResponse> => {
+      const response = await axiosInstance.get(
+        `${import.meta.env.VITE_BACKEND_BASE_URL}/projects`,
+        {
+          params: {
+            limit: 6,
+            page: pageParam,
+          },
+        }
+      );
+      return response.data;
+    },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage,
   });
@@ -118,6 +123,7 @@ function Index() {
                     title={project.name}
                     votes={project._count.votes}
                     tags={project.tags}
+                    isBookmarked={project.isBookmarked}
                   />
                 ))}
               </React.Fragment>
