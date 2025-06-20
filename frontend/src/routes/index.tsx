@@ -30,7 +30,7 @@ type Project = {
   isBookmarked?: boolean;
 };
 
-type GetProjectsResponse = {
+export type GetProjectsResponse = {
   nextPage: number | null;
   projects: Project[];
 };
@@ -113,6 +113,7 @@ function Index() {
                 {group.projects.map((project) => (
                   <ProjectCard
                     key={project.id}
+                    id={project.id}
                     description={project.description}
                     gitHubRepoUrl={project.repoUrl}
                     gitHubStars={project.gitHubStars}

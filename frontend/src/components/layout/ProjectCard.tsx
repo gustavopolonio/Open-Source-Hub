@@ -1,6 +1,10 @@
 import { Typography } from "../ui/typography";
 import { Badge } from "@/components/ui/badge";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { InfiniteData } from "@tanstack/react-query";
+import type { GetProjectsResponse } from "@/routes";
 import { useAuth } from "@/hooks/useAuth";
+import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { Button } from "../ui/button";
 import { Icon } from "../ui/icon";
 import {
@@ -23,6 +27,7 @@ type Tag = {
 };
 
 type ProjectCardProps = {
+  id: number;
   logoUrl: string | null;
   title: string;
   license: string | null;
@@ -37,6 +42,7 @@ type ProjectCardProps = {
 };
 
 export function ProjectCard({
+  id,
   description,
   gitHubStars,
   license,
@@ -50,6 +56,49 @@ export function ProjectCard({
   isBookmarked,
 }: ProjectCardProps) {
   const { isAuthenticated } = useAuth();
+  const axiosPrivate = useAxiosPrivate();
+  const queryClient = useQueryClient();
+
+  async function handleBookmarkToggle() {
+    return await axiosPrivate({
+      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/projects/${id}/bookmark`,
+      method: isBookmarked ? "DELETE" : "POST",
+    });
+  }
+
+  const toggleBookmarkMutation = useMutation({
+    mutationFn: handleBookmarkToggle,
+    onSuccess() {
+      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+        ["projects"],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              projects: page.projects.map((project) => {
+                if (project.id === id) {
+                  return {
+                    ...project,
+                    isBookmarked: !isBookmarked,
+                  };
+                } else {
+                  return project;
+                }
+              }),
+            })),
+          };
+        }
+      );
+      // @to-do: add success toast component
+    },
+    onError() {
+      // @to-do: add failed toast component
+      alert("Failed to update bookmard. Please try again.");
+    },
+  });
 
   return (
     <div className="relative rounded-xl shadow-sm hover:shadow-[var(--shadow-xl)]">
@@ -82,7 +131,10 @@ export function ProjectCard({
             </Tooltip>
             {isAuthenticated && (
               <Tooltip>
-                <TooltipTrigger className="z-10">
+                <TooltipTrigger
+                  className="z-10"
+                  onClick={() => toggleBookmarkMutation.mutate()}
+                >
                   <Icon
                     name="bookmark"
                     outlineColor="primary"
