@@ -28,6 +28,7 @@ type Project = {
     votes: number;
   };
   isBookmarked?: boolean;
+  isVoted?: boolean;
 };
 
 export type GetProjectsResponse = {
@@ -125,6 +126,7 @@ function Index() {
                     votes={project._count.votes}
                     tags={project.tags}
                     isBookmarked={project.isBookmarked}
+                    isVoted={project.isVoted}
                   />
                 ))}
               </React.Fragment>

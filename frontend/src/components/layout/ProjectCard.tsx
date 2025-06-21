@@ -38,6 +38,7 @@ type ProjectCardProps = {
   programmingLanguage: string | null;
   gitHubRepoUrl: string;
   isBookmarked?: boolean;
+  isVoted?: boolean;
   tags: Tag[];
 };
 
@@ -54,6 +55,7 @@ export function ProjectCard({
   gitHubRepoUrl,
   tags,
   isBookmarked,
+  isVoted,
 }: ProjectCardProps) {
   const { isAuthenticated } = useAuth();
   const axiosPrivate = useAxiosPrivate();
@@ -97,6 +99,59 @@ export function ProjectCard({
     onError() {
       // @to-do: add failed toast component
       alert("Failed to update bookmard. Please try again.");
+    },
+  });
+
+  async function handleVoteToggle() {
+    return await axiosPrivate({
+      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/projects/${id}/vote`,
+      method: isVoted ? "DELETE" : "POST",
+    });
+  }
+
+  const toggleVoteMutation = useMutation({
+    mutationFn: handleVoteToggle,
+    onMutate() {
+      return { wasVoted: isVoted };
+    },
+    onSuccess(_data, _variables, context) {
+      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+        ["projects"],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              projects: page.projects.map((project) => {
+                if (project.id === id) {
+                  const currentVotes = project._count.votes;
+                  const newVotesCount = context.wasVoted
+                    ? Math.max(currentVotes - 1, 0)
+                    : currentVotes + 1;
+
+                  return {
+                    ...project,
+                    isVoted: !isVoted,
+                    _count: {
+                      ...project._count,
+                      votes: newVotesCount,
+                    },
+                  };
+                } else {
+                  return project;
+                }
+              }),
+            })),
+          };
+        }
+      );
+      // @to-do: add success toast component
+    },
+    onError() {
+      // @to-do: add failed toast component
+      alert("Failed to update vote. Please try again.");
     },
   });
 
@@ -187,16 +242,27 @@ export function ProjectCard({
           </div>
           <div className="flex items-center gap-1">
             <Tooltip>
-              <TooltipTrigger className="z-10">
-                {/* Only let vote if authenticated */}
-                {/* @to-do: if/else fill triangle if user already voted on project */}
+              <TooltipTrigger
+                className="z-10"
+                onClick={() => {
+                  if (isAuthenticated) toggleVoteMutation.mutate();
+                }}
+              >
                 <Icon
                   name="triangle"
                   outlineColor="oklch(54.6% 0.245 262.881)"
+                  fill={
+                    isAuthenticated
+                      ? isVoted
+                        ? "oklch(54.6% 0.245 262.881)"
+                        : "transparent"
+                      : "oklch(54.6% 0.245 262.881)"
+                  }
                 />
               </TooltipTrigger>
-              {/* @to-do: if/else update text to upvoted if user already voted on project */}
-              <TooltipContent>Upvote</TooltipContent>
+              <TooltipContent>
+                {isAuthenticated ? (isVoted ? "Unvote" : "Upvote") : "Upvotes"}
+              </TooltipContent>
             </Tooltip>
             {votes}
           </div>
