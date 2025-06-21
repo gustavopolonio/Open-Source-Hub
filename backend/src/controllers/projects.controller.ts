@@ -9,6 +9,7 @@ import { env } from "@/env";
 export async function getPublicProjects(req: Request, res: Response) {
   const { userId } = req.user;
   const includeBookmarks = userId !== undefined;
+  const includeIsVoted = userId !== undefined;
 
   const sortByOptions = [
     "votes",
@@ -93,6 +94,12 @@ export async function getPublicProjects(req: Request, res: Response) {
             select: { userId: true },
           },
         }),
+        ...(includeIsVoted && {
+          votes: {
+            where: { userId },
+            select: { userId: true },
+          },
+        }),
       },
       orderBy: orderProjectsBy(),
       skip: (page - 1) * limit,
@@ -103,9 +110,10 @@ export async function getPublicProjects(req: Request, res: Response) {
     const paginatedProjects = hasNextPage ? projects.slice(0, -1) : projects;
 
     const projectsWithBookmarkStatus = paginatedProjects.map(
-      ({ bookmarks, ...rest }) => ({
+      ({ bookmarks, votes, ...rest }) => ({
         ...rest,
         isBookmarked: bookmarks && bookmarks.length > 0,
+        isVoted: votes && votes.length > 0,
       })
     );
 
