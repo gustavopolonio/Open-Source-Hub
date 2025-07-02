@@ -71,29 +71,44 @@ export function ProjectCard({
   const toggleBookmarkMutation = useMutation({
     mutationFn: handleBookmarkToggle,
     onSuccess() {
+      function updateBookmarksData(
+        oldData: InfiniteData<GetProjectsResponse> | undefined
+      ) {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            projects: page.projects.map((project) => {
+              if (project.id === id) {
+                return {
+                  ...project,
+                  isBookmarked: !isBookmarked,
+                };
+              } else {
+                return project;
+              }
+            }),
+          })),
+        };
+      }
+
       queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
         ["projects"],
-        (oldData) => {
-          if (!oldData) return oldData;
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              projects: page.projects.map((project) => {
-                if (project.id === id) {
-                  return {
-                    ...project,
-                    isBookmarked: !isBookmarked,
-                  };
-                } else {
-                  return project;
-                }
-              }),
-            })),
-          };
-        }
+        (oldData) => updateBookmarksData(oldData)
       );
+
+      const filteredQueries = queryClient.getQueriesData<
+        InfiniteData<GetProjectsResponse>
+      >({
+        queryKey: ["filtered-projects"],
+        exact: false,
+      });
+
+      for (const [queryKey, data] of filteredQueries) {
+        queryClient.setQueryData(queryKey, updateBookmarksData(data));
+      }
       // @to-do: add success toast component
     },
     onError() {
@@ -115,38 +130,55 @@ export function ProjectCard({
       return { wasVoted: isVoted };
     },
     onSuccess(_data, _variables, context) {
+      function updateVotesData(
+        oldData: InfiniteData<GetProjectsResponse> | undefined
+      ) {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            projects: page.projects.map((project) => {
+              if (project.id === id) {
+                const currentVotes = project._count.votes;
+                const newVotesCount = context.wasVoted
+                  ? Math.max(currentVotes - 1, 0)
+                  : currentVotes + 1;
+
+                return {
+                  ...project,
+                  isVoted: !isVoted,
+                  _count: {
+                    ...project._count,
+                    votes: newVotesCount,
+                  },
+                };
+              } else {
+                return project;
+              }
+            }),
+          })),
+        };
+      }
+
       queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
         ["projects"],
-        (oldData) => {
-          if (!oldData) return oldData;
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              projects: page.projects.map((project) => {
-                if (project.id === id) {
-                  const currentVotes = project._count.votes;
-                  const newVotesCount = context.wasVoted
-                    ? Math.max(currentVotes - 1, 0)
-                    : currentVotes + 1;
-
-                  return {
-                    ...project,
-                    isVoted: !isVoted,
-                    _count: {
-                      ...project._count,
-                      votes: newVotesCount,
-                    },
-                  };
-                } else {
-                  return project;
-                }
-              }),
-            })),
-          };
-        }
+        (oldData) => updateVotesData(oldData)
       );
+
+      const filteredQueries = queryClient.getQueriesData<
+        InfiniteData<GetProjectsResponse>
+      >({
+        queryKey: ["filtered-projects"],
+        exact: false,
+      });
+
+      for (const [queryKey, data] of filteredQueries) {
+        // @to-do: when user votes on page /projects the oerder of 'Most voted' doesnt change, because it's cached. Check this
+        queryClient.setQueryData(queryKey, updateVotesData(data));
+      }
+
       // @to-do: add success toast component
     },
     onError() {

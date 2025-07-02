@@ -34,6 +34,7 @@ type Project = {
 export type GetProjectsResponse = {
   nextPage: number | null;
   projects: Project[];
+  totalCount: number;
 };
 
 export const Route = createFileRoute("/")({
