@@ -117,9 +117,35 @@ export async function getPublicProjects(req: Request, res: Response) {
       })
     );
 
+    const totalCount = await prisma.project.count({
+      where: {
+        AND: [
+          {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          { programmingLanguage: language },
+          tagIds
+            ? {
+                tags: {
+                  some: {
+                    id: {
+                      in: tagIds,
+                    },
+                  },
+                },
+              }
+            : {},
+        ],
+      },
+    });
+
     res.status(200).json({
       projects: projectsWithBookmarkStatus,
       nextPage: hasNextPage ? page + 1 : null,
+      totalCount,
     });
     return;
   } catch (error) {
