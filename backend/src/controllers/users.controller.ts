@@ -41,6 +41,11 @@ export async function authenticateOrRegister(
       return;
     }
 
+    const { ciphertext, iv, tag } = encryptSymmetric(
+      env.GITHUB_ACCESS_TOKEN_ENCRYPT_KEY,
+      accessToken
+    );
+
     const userOauth = await prisma.oauthAccount.findUnique({
       where: {
         providerUserId: String(gitHubId),
@@ -58,11 +63,6 @@ export async function authenticateOrRegister(
           email: gitHubEmail,
         },
       });
-
-      const { ciphertext, iv, tag } = encryptSymmetric(
-        env.GITHUB_ACCESS_TOKEN_ENCRYPT_KEY,
-        accessToken
-      );
 
       if (user) {
         // Link this GitHub account to that `user` (insert into `oauth_accounts`)
@@ -101,6 +101,19 @@ export async function authenticateOrRegister(
           },
         });
       }
+    } else {
+      // Update provider accessToken on DB
+      await prisma.oauthAccount.update({
+        where: {
+          providerUserId: String(gitHubId),
+          provider: "GITHUB",
+        },
+        data: {
+          providerUserAccessTokenEncrypted: ciphertext,
+          ivEncrypt: iv,
+          tagEncrypt: Buffer.from(tag).toString("base64"),
+        },
+      });
     }
 
     const { token, refreshToken } = await authenticateWithOauth(
