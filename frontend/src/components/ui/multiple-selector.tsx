@@ -505,25 +505,14 @@ const MultipleSelector = React.forwardRef<
                     onClick={() => handleUnselect(option)}
                   >
                     {option.label}
-                    <button
-                      type="button"
+                    <span
                       className={cn(
                         "ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2",
                         (disabled || option.fixed) && "hidden"
                       )}
-                      // onKeyDown={(e) => {
-                      //   if (e.key === "Enter") {
-                      //     handleUnselect(option);
-                      //   }
-                      // }}
-                      // onMouseDown={(e) => {
-                      //   e.preventDefault();
-                      //   e.stopPropagation();
-                      // }}
-                      // onClick={() => handleUnselect(option)}
                     >
                       <X className="h-3 w-3 text-primary-foreground hover:text-foreground" />
-                    </button>
+                    </span>
                   </Button>
                 </Badge>
               );
