@@ -42,7 +42,12 @@ export async function getAuthenticatedUserGithubRepos(
       }
     );
 
-    res.status(200).json({ gitHubRepositories });
+    const gitHubRepositoriesMapped = gitHubRepositories.map((repo) => ({
+      name: repo.name,
+      url: repo.html_url,
+    }));
+
+    res.status(200).json({ gitHubRepositories: gitHubRepositoriesMapped });
     return;
   } catch (error) {
     if (error instanceof Error) {
