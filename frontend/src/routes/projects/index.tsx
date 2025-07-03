@@ -75,7 +75,7 @@ export type GetProjectsResponse = {
   totalCount: number;
 };
 
-export const Route = createFileRoute("/projects")({
+export const Route = createFileRoute("/projects/")({
   component: Projects,
 });
 
