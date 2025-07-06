@@ -281,7 +281,7 @@ function Projects() {
       <div className="space-y-8">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
           {isProjectsError ? (
-            <div className="col-span-full text-center text-destructive">
+            <div className="text-center text-destructive">
               <Typography variant="p">Failed to load projects :(</Typography>
             </div>
           ) : isProjectsPending ? (
