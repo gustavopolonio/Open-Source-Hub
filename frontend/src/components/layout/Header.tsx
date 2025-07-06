@@ -18,11 +18,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-type User = {
+export type User = {
   user: {
     name: string;
     avatarUrl: string;
     email: string;
+    bio: string;
   };
 };
 
@@ -34,6 +35,7 @@ export function Header() {
   });
   const { data, isError, isPending } = useQuery<User>({
     queryKey: ["user"],
+    staleTime: 1000 * 60 * 60, // 1 hour
     queryFn: async () => {
       const response = await axiosPrivate.get("/users/me");
       return response.data;
