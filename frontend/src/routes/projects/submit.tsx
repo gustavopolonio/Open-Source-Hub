@@ -133,6 +133,7 @@ function SubmitProject() {
       submitProjectForm.reset();
     },
     onError(error: AxiosError) {
+      // @to-do: add failed toast component
       if (error.status === 409) {
         alert("Failed to submit project: project already submitted");
         return;
