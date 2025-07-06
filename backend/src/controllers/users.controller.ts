@@ -250,6 +250,12 @@ export async function updateAuthenticatedUser(req: Request, res: Response) {
           },
         }),
       },
+      omit: {
+        id: true,
+        passwordHash: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     res.status(200).json({ updatedUser });
