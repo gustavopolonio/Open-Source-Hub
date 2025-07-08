@@ -4,7 +4,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Settings2, CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/axios";
@@ -85,6 +85,7 @@ const submitProjectFormSchema = z.object({
 function SubmitProject() {
   const axiosPrivate = useAxiosPrivate();
   const [isComboboxOpen, setIsComboboxOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     data: tagsData,
@@ -128,6 +129,9 @@ function SubmitProject() {
       return response.data;
     },
     onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["submitted-projects"] });
+      queryClient.invalidateQueries({ queryKey: ["filtered-projects"] });
+
       // @to-do: add success toast component
       alert("Project submitted!");
       submitProjectForm.reset();
