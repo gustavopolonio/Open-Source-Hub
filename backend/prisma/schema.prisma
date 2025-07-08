@@ -56,8 +56,8 @@ model OauthAccount {
 }
 
 model Project {
-  id                  Int           @id @default(autoincrement())
-  gitHubProjectId     Int           @unique
+  id                  Int        @id @default(autoincrement())
+  gitHubProjectId     Int        @unique
   name                String
   description         String?
   programmingLanguage String?
@@ -66,31 +66,20 @@ model Project {
   liveLink            String?
   avatarUrl           String?
   repoUrl             String
-  createdAt           DateTime      @default(now())
-  gitHubCreatedAt     DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  createdAt           DateTime   @default(now())
+  gitHubCreatedAt     DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
   submittedBy         Int
   bookmarks           Bookmark[]
-  author              User          @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
-  projectTags         ProjectTags[]
+  author              User       @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
   votes               Vote[]
-  tags                Tag[]         @relation("ProjectToTag")
+  tags                Tag[]      @relation("ProjectToTag")
 }
 
 model Tag {
-  id          Int           @id @default(autoincrement())
-  name        String        @unique
-  projectTags ProjectTags[]
-  projects    Project[]     @relation("ProjectToTag")
-}
-
-model ProjectTags {
-  projectId Int
-  tagId     Int
-  project   Project @relation(fields: [projectId], references: [id])
-  tag       Tag     @relation(fields: [tagId], references: [id])
-
-  @@id([projectId, tagId])
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  projects Project[] @relation("ProjectToTag")
 }
 
 model Vote {
