@@ -1,4 +1,11 @@
-import { Star, Triangle, Bookmark, Edit, Settings2 } from "lucide-react";
+import {
+  Star,
+  Triangle,
+  Bookmark,
+  Edit,
+  Settings2,
+  Trash2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const iconMap = {
@@ -7,6 +14,7 @@ const iconMap = {
   bookmark: Bookmark,
   edit: Edit,
   settings2: Settings2,
+  trash: Trash2,
 };
 
 type IconName = keyof typeof iconMap;

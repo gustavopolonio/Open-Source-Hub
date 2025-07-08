@@ -94,6 +94,17 @@ const updateProjectFormSchema = z.object({
   liveLink: z.string().url(),
 });
 
+function getDeleteProjectFormSchema(title: string) {
+  return z.object({
+    projectName: z
+      .string()
+      .refine(
+        (projectName) => projectName === title,
+        "The project name does not match"
+      ),
+  });
+}
+
 export function ProjectCard({
   id,
   description,
@@ -110,10 +121,13 @@ export function ProjectCard({
   isBookmarked,
   isVoted,
 }: ProjectCardProps) {
+  const deleteProjectFormSchema = getDeleteProjectFormSchema(title);
   const { isAuthenticated } = useAuth();
   const axiosPrivate = useAxiosPrivate();
   const queryClient = useQueryClient();
   const [isUpdateProjectModalOpen, setIsUpdateProjectModalOpen] =
+    useState(false);
+  const [isDeleteProjectModalOpen, setIsDeleteProjectModalOpen] =
     useState(false);
 
   const {
@@ -344,6 +358,36 @@ export function ProjectCard({
     });
   }
 
+  const deleteProjectForm = useForm<z.infer<typeof deleteProjectFormSchema>>({
+    resolver: zodResolver(deleteProjectFormSchema),
+    defaultValues: {
+      projectName: "",
+    },
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async () => {
+      const response = await axiosPrivate.delete(`/projects/${id}`);
+      return response.data;
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["submitted-projects"] });
+      queryClient.invalidateQueries({ queryKey: ["filtered-projects"] });
+
+      // @to-do: add success toast component
+      alert("Project deleted!");
+      setIsDeleteProjectModalOpen(false);
+    },
+    onError() {
+      // @to-do: add failed toast component
+      alert("Failed to delete project");
+    },
+  });
+
+  function onDeleteProject() {
+    deleteProjectMutation.mutate();
+  }
+
   const tagOptions: Option[] =
     tagsData?.tags.map((tag) => ({
       label: tag.name,
@@ -399,117 +443,198 @@ export function ProjectCard({
             )}
 
             {isAuthenticated && variant === "editable" && (
-              <Dialog
-                open={isUpdateProjectModalOpen}
-                onOpenChange={(open) => {
-                  setIsUpdateProjectModalOpen(open);
-                  if (!open) {
-                    setTimeout(() => {
-                      updateProjectForm.reset({
-                        tagOptions: tags.map((tag) => ({
-                          label: tag.name,
-                          value: String(tag.id),
-                        })),
-                        liveLink: liveLink || "",
-                      });
-                    }, 350);
-                  }
-                }}
-              >
-                <Tooltip>
-                  <TooltipTrigger asChild className="z-10">
-                    <DialogTrigger asChild>
-                      <Icon name="edit" outlineColor="#000" />
-                    </DialogTrigger>
-                  </TooltipTrigger>
-                  <TooltipContent>Edit project</TooltipContent>
-                </Tooltip>
-                <DialogContent>
-                  <Form {...updateProjectForm}>
-                    <form
-                      onSubmit={updateProjectForm.handleSubmit(onUpdateProject)}
-                      className="grid gap-4"
-                    >
-                      <DialogHeader>
-                        <DialogTitle>Edit project</DialogTitle>
-                        <DialogDescription>
-                          Make changes to your project here. Click save when
-                          you&apos;re done.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4">
-                        <FormField
-                          control={updateProjectForm.control}
-                          name="liveLink"
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              <FormLabel>Live link</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {isTagsPending ? (
-                          // @to-do: check if this message ui is right
-                          <Typography variant="p">Loading tags...</Typography>
-                        ) : isTagsError ? (
-                          // @to-do: check if this message ui is right
-                          <Typography variant="p">
-                            Failed to load tags.
-                          </Typography>
-                        ) : (
+              <div className="flex flex-col gap-3">
+                <Dialog
+                  open={isUpdateProjectModalOpen}
+                  onOpenChange={(open) => {
+                    setIsUpdateProjectModalOpen(open);
+                    if (!open) {
+                      setTimeout(() => {
+                        updateProjectForm.reset({
+                          tagOptions: tags.map((tag) => ({
+                            label: tag.name,
+                            value: String(tag.id),
+                          })),
+                          liveLink: liveLink || "",
+                        });
+                      }, 350);
+                    }
+                  }}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild className="z-10">
+                      <DialogTrigger asChild>
+                        <Icon name="edit" outlineColor="#000" />
+                      </DialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">Edit project</TooltipContent>
+                  </Tooltip>
+                  <DialogContent>
+                    <Form {...updateProjectForm}>
+                      <form
+                        onSubmit={updateProjectForm.handleSubmit(
+                          onUpdateProject
+                        )}
+                        className="grid gap-4"
+                      >
+                        <DialogHeader>
+                          <DialogTitle>Edit project</DialogTitle>
+                          <DialogDescription>
+                            Make changes to your project here. Click save when
+                            you&apos;re done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4">
                           <FormField
                             control={updateProjectForm.control}
-                            name="tagOptions"
+                            name="liveLink"
                             render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Tags</FormLabel>
+                              <FormItem className="w-full">
+                                <FormLabel>Live link</FormLabel>
                                 <FormControl>
-                                  <MultipleSelector
-                                    defaultOptions={tagOptions}
-                                    placeholder="Select tags to the project..."
-                                    emptyIndicator={
-                                      <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                                        no results found.
-                                      </p>
-                                    }
-                                    hidePlaceholderWhenSelected
-                                    startIcon={
-                                      <Icon
-                                        name="settings2"
-                                        size="md"
-                                        outlineColor="oklch(0.5032 0 0)"
-                                      />
-                                    }
-                                    {...field}
-                                  />
+                                  <Input {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
+
+                          {isTagsPending ? (
+                            // @to-do: check if this message ui is right
+                            <Typography variant="p">Loading tags...</Typography>
+                          ) : isTagsError ? (
+                            // @to-do: check if this message ui is right
+                            <Typography variant="p">
+                              Failed to load tags.
+                            </Typography>
+                          ) : (
+                            <FormField
+                              control={updateProjectForm.control}
+                              name="tagOptions"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Tags</FormLabel>
+                                  <FormControl>
+                                    <MultipleSelector
+                                      defaultOptions={tagOptions}
+                                      placeholder="Select tags to the project..."
+                                      emptyIndicator={
+                                        <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                                          no results found.
+                                        </p>
+                                      }
+                                      hidePlaceholderWhenSelected
+                                      startIcon={
+                                        <Icon
+                                          name="settings2"
+                                          size="md"
+                                          outlineColor="oklch(0.5032 0 0)"
+                                        />
+                                      }
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          )}
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                          </DialogClose>
+                          <Button
+                            disabled={updateProjectMutation.isPending}
+                            type="submit"
+                          >
+                            {updateProjectMutation.isPending
+                              ? "Saving..."
+                              : "Save changes"}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog
+                  open={isDeleteProjectModalOpen}
+                  onOpenChange={(open) => {
+                    setIsDeleteProjectModalOpen(open);
+                    if (!open) {
+                      setTimeout(() => {
+                        deleteProjectForm.reset({
+                          projectName: "",
+                        });
+                      }, 350);
+                    }
+                  }}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild className="z-10">
+                      <DialogTrigger asChild>
+                        <Icon name="trash" outlineColor="#000" />
+                      </DialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">Delete project</TooltipContent>
+                  </Tooltip>
+                  <DialogContent>
+                    <Form {...deleteProjectForm}>
+                      <form
+                        onSubmit={deleteProjectForm.handleSubmit(
+                          onDeleteProject
                         )}
-                      </div>
-                      <DialogFooter>
-                        <DialogClose asChild>
-                          <Button variant="outline">Cancel</Button>
-                        </DialogClose>
-                        <Button
-                          disabled={updateProjectMutation.isPending}
-                          type="submit"
-                        >
-                          {updateProjectMutation.isPending
-                            ? "Saving..."
-                            : "Save changes"}
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
+                        className="grid gap-4"
+                      >
+                        <DialogHeader>
+                          <DialogTitle>Delete project</DialogTitle>
+                          <DialogDescription>
+                            This project will be deleted, along with all of its
+                            votes, bookmarks and settings.
+                          </DialogDescription>
+                          <Typography className="text-sm text-destructive-secondary-foreground bg-destructive-secondary py-2 px-3 rounded-md">
+                            Warning: This action is not reversible. Please be
+                            certain.
+                          </Typography>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-6 border-y-[1px] border-[--border]">
+                          <FormField
+                            control={deleteProjectForm.control}
+                            name="projectName"
+                            render={({ field }) => (
+                              <FormItem className="w-full">
+                                <FormLabel>
+                                  Enter the project name <b>{title}</b> to
+                                  continue
+                                </FormLabel>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                          </DialogClose>
+                          <Button
+                            disabled={deleteProjectMutation.isPending}
+                            type="submit"
+                            variant="destructive"
+                          >
+                            {deleteProjectMutation.isPending
+                              ? "Deleting..."
+                              : "Delete"}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+              </div>
             )}
           </CardAction>
         </CardHeader>

@@ -138,6 +138,7 @@ function Account() {
     hasNextPage: submittedProjectsHasNextPage,
     isFetchingNextPage: isFetchingSubmittedProjectsNextPage,
   } = useInfiniteQuery({
+    staleTime: 1000 * 60 * 60, // 1 hour
     queryKey: ["submitted-projects"],
     queryFn: async ({
       pageParam,
