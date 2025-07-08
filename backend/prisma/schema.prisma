@@ -20,25 +20,14 @@ model User {
   bookmarks     Bookmark[]
   oauthAccounts OauthAccount[]
   projects      Project[]
-  userSkills    UserSkills[]
   votes         Vote[]
-  skills        Skill[]        @relation("SkillToUser")
+  skills        Skill[]
 }
 
 model Skill {
-  id         Int          @id @default(autoincrement())
-  name       String       @unique
-  userSkills UserSkills[]
-  users      User[]       @relation("SkillToUser")
-}
-
-model UserSkills {
-  userId  Int
-  skillId Int
-  skill   Skill @relation(fields: [skillId], references: [id])
-  user    User  @relation(fields: [userId], references: [id])
-
-  @@id([userId, skillId])
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
 }
 
 model OauthAccount {
