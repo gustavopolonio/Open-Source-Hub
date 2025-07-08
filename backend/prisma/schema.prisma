@@ -73,13 +73,13 @@ model Project {
   bookmarks           Bookmark[]
   author              User       @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
   votes               Vote[]
-  tags                Tag[]      @relation("ProjectToTag")
+  tags                Tag[]
 }
 
 model Tag {
   id       Int       @id @default(autoincrement())
   name     String    @unique
-  projects Project[] @relation("ProjectToTag")
+  projects Project[]
 }
 
 model Vote {
