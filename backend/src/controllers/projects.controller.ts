@@ -288,6 +288,15 @@ export async function updateProject(req: Request, res: Response) {
           },
         }),
       },
+      include: {
+        tags: true,
+      },
+      omit: {
+        gitHubProjectId: true,
+        createdAt: true,
+        gitHubCreatedAt: true,
+        updatedAt: true,
+      },
     });
 
     res.status(200).json({ updatedProject });
