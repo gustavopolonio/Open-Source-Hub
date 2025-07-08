@@ -316,7 +316,29 @@ export async function getAuthenticatedUserProjects(
       where: {
         submittedBy: userId,
       },
-      include: { author: true },
+      include: {
+        author: {
+          omit: {
+            id: true,
+          },
+        },
+        tags: true,
+        _count: {
+          select: { votes: true },
+        },
+        votes: {
+          where: { userId },
+          select: { userId: true },
+        },
+      },
+      omit: {
+        gitHubProjectId: true,
+        programmingLanguage: true,
+        createdAt: true,
+        updatedAt: true,
+        gitHubCreatedAt: true,
+        submittedBy: true,
+      },
       skip: (page - 1) * limit,
       take: limit + 1, // Fetch one extra item to check if there's a next page
     });
@@ -324,9 +346,23 @@ export async function getAuthenticatedUserProjects(
     const hasNextPage = projects.length > limit;
     const paginatedProjects = hasNextPage ? projects.slice(0, -1) : projects;
 
+    const projectsWithVotesStatus = paginatedProjects.map(
+      ({ votes, ...rest }) => ({
+        ...rest,
+        isVoted: votes && votes.length > 0,
+      })
+    );
+
+    const totalCount = await prisma.project.count({
+      where: {
+        submittedBy: userId,
+      },
+    });
+
     res.status(200).json({
-      projects: paginatedProjects,
+      projects: projectsWithVotesStatus,
       nextPage: hasNextPage ? page + 1 : null,
+      totalCount,
     });
     return;
   } catch (error) {
