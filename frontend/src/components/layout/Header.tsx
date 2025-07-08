@@ -75,36 +75,45 @@ export function Header() {
                 <Typography variant="p">{data.user.email}</Typography>
               </DropdownMenuLabel>
               <DropdownMenuGroup>
-                <DropdownMenuItem className="p-0">
-                  <Link to="/account" className="w-full px-2 py-1.5">
+                <DropdownMenuItem asChild className="p-0">
+                  <Link
+                    to="/account"
+                    className="w-full px-2 py-1.5 cursor-pointer"
+                  >
                     Account settings
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="p-0">
-                  <Link to="/projects" className="w-full px-2 py-1.5">
+                <DropdownMenuItem asChild className="p-0">
+                  <Link
+                    to="/projects"
+                    className="w-full px-2 py-1.5 cursor-pointer"
+                  >
                     All projects
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="p-0">
-                  <Link to="/projects/submit" className="w-full px-2 py-1.5">
+                <DropdownMenuItem asChild className="p-0">
+                  <Link
+                    to="/projects/submit"
+                    className="w-full px-2 py-1.5 cursor-pointer"
+                  >
                     Submit your project
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="p-0">
-                  <Link to="/" className="w-full px-2 py-1.5">
+                <DropdownMenuItem asChild className="p-0">
+                  <Link to="/" className="w-full px-2 py-1.5 cursor-pointer">
                     Homepage
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="p-0">
+                <DropdownMenuItem asChild className="p-0">
                   <Link
                     to="/login"
-                    className="flex items-center justify-between w-full px-2 py-1.5"
+                    className="flex items-center justify-between w-full px-2 py-1.5 cursor-pointer"
                   >
                     Log out
                     <LogOut />
