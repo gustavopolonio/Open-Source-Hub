@@ -1,10 +1,12 @@
-import { Star, Triangle, Bookmark } from "lucide-react";
+import { Star, Triangle, Bookmark, Edit, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const iconMap = {
   star: Star,
   triangle: Triangle,
   bookmark: Bookmark,
+  edit: Edit,
+  settings2: Settings2,
 };
 
 type IconName = keyof typeof iconMap;

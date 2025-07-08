@@ -10,6 +10,7 @@ import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { useAuth } from "@/hooks/useAuth";
 
 type Tag = {
+  id: number;
   name: string;
 };
 

@@ -1,17 +1,27 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Edit } from "lucide-react";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { GetProjectsResponse } from "./projects"; // @to-do: put type on @types files
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import type { User } from "@/components/layout/Header"; // @to-do: same type used in other component
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { UserSettingsCardSkeleton } from "@/components/layout/UserSettingsCardSkeleton";
+import { ProjectCard } from "@/components/layout/ProjectCard";
+import { ProjectCardSkeleton } from "@/components/layout/ProjectCardSkeleton";
+import { Icon } from "@/components/ui/icon";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Form,
   FormControl,
@@ -120,6 +130,35 @@ function Account() {
     },
   });
 
+  const {
+    data: submittedProjectsData,
+    isPending: isSubmittedProjectsPending,
+    isError: isSubmittedProjectsError,
+    fetchNextPage: fetchSubmittedProjectsNextPage,
+    hasNextPage: submittedProjectsHasNextPage,
+    isFetchingNextPage: isFetchingSubmittedProjectsNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["submitted-projects"],
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: number;
+    }): Promise<GetProjectsResponse> => {
+      const response = await axiosPrivate.get(
+        `${import.meta.env.VITE_BACKEND_BASE_URL}/users/me/projects`,
+        {
+          params: {
+            limit: 6,
+            page: pageParam,
+          },
+        }
+      );
+      return response.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  });
+
   function onUpdateUser(
     values: z.infer<typeof updateAuthenticatedUserFormSchema>
   ) {
@@ -135,6 +174,16 @@ function Account() {
       });
     }
   }, [userData, isUserSuccess, updateAuthenticatedUserForm]);
+
+  const loadedSubmittedProjectsCount = submittedProjectsData?.pages.reduce(
+    (acc, currentPage) => {
+      return acc + currentPage.projects.length;
+    },
+    0
+  );
+
+  const submittedProjectsTotalCount =
+    submittedProjectsData?.pages[0].totalCount;
 
   return (
     <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
@@ -152,7 +201,19 @@ function Account() {
         ) : (
           <Dialog
             open={isUpdateUserModalOpen}
-            onOpenChange={setIsUpdateUserModalOpen}
+            onOpenChange={(open) => {
+              setIsUpdateUserModalOpen(open);
+              if (!open && userData) {
+                setTimeout(() => {
+                  updateAuthenticatedUserForm.reset({
+                    username: userData.user.name,
+                    avatarUrl: userData.user.avatarUrl,
+                    bio: userData.user.bio,
+                  });
+                }, 350);
+              }
+            }}
+            // @to-do: reset form onClose modal
           >
             <DialogTrigger asChild>
               <div
@@ -186,7 +247,7 @@ function Account() {
                     </Typography>
                   </div>
 
-                  <Edit />
+                  <Icon name="edit" outlineColor="#000" />
                 </div>
 
                 <Typography className="w-full">
@@ -269,6 +330,90 @@ function Account() {
             </DialogContent>
           </Dialog>
         )}
+      </div>
+
+      <div className="space-y-8">
+        <Typography variant="h2" className="text-center">
+          Projects
+        </Typography>
+
+        <Tabs defaultValue="submitted">
+          <TabsList className="w-full">
+            <TabsTrigger value="submitted">Submitted</TabsTrigger>
+            <TabsTrigger value="bookmarked">Bookmarked</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="submitted">
+            <div className="space-y-8">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
+                {isSubmittedProjectsError ? (
+                  <div className="col-span-full text-center text-destructive">
+                    <Typography variant="p">
+                      Failed to load projects :(
+                    </Typography>
+                  </div>
+                ) : isSubmittedProjectsPending ? (
+                  <>
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                  </>
+                ) : (
+                  submittedProjectsData.pages.map((group, i) => (
+                    <React.Fragment key={i}>
+                      {group.projects.map((project) => (
+                        <ProjectCard
+                          key={project.id}
+                          id={project.id}
+                          description={project.description}
+                          gitHubRepoUrl={project.repoUrl}
+                          gitHubStars={project.gitHubStars}
+                          license={project.license}
+                          liveLink={project.liveLink}
+                          logoUrl={project.avatarUrl}
+                          programmingLanguage={project.programmingLanguage}
+                          title={project.name}
+                          votes={project._count.votes}
+                          tags={project.tags}
+                          variant="editable"
+                          isBookmarked={project.isBookmarked}
+                          isVoted={project.isVoted}
+                        />
+                      ))}
+                    </React.Fragment>
+                  ))
+                )}
+              </div>
+
+              <Typography className="text-center">
+                Showing {loadedSubmittedProjectsCount} of{" "}
+                {submittedProjectsTotalCount}
+              </Typography>
+
+              {submittedProjectsHasNextPage && !isSubmittedProjectsError && (
+                <Button
+                  className="font-bold flex mx-auto"
+                  size="xlg"
+                  variant="outline"
+                  disabled={
+                    isSubmittedProjectsPending ||
+                    isFetchingSubmittedProjectsNextPage
+                  }
+                  onClick={() => fetchSubmittedProjectsNextPage()}
+                >
+                  {isFetchingSubmittedProjectsNextPage
+                    ? "Loading ..."
+                    : "Load more..."}
+                </Button>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="bookmarked"></TabsContent>
+        </Tabs>
       </div>
     </div>
   );

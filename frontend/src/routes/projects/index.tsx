@@ -1,7 +1,7 @@
 import React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { Search, Settings2 } from "lucide-react";
+import { Search } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { ProjectCardSkeleton } from "@/components/layout/ProjectCardSkeleton";
 import { ProjectCard } from "@/components/layout/ProjectCard";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import {
   Select,
   SelectContent,
@@ -39,7 +40,7 @@ type Tag = {
   name: string;
 };
 
-type GetTagsResponse = {
+export type GetTagsResponse = {
   tags: Tag[];
 };
 
@@ -212,7 +213,11 @@ function Projects() {
                       }
                       hidePlaceholderWhenSelected
                       startIcon={
-                        <Settings2 size={20} color="oklch(0.5032 0 0)" />
+                        <Icon
+                          name="settings2"
+                          size="md"
+                          outlineColor="oklch(0.5032 0 0)"
+                        />
                       }
                       {...field}
                     />
