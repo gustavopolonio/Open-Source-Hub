@@ -317,11 +317,6 @@ export function ProjectCard({
         };
       }
 
-      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
-        ["projects"],
-        (oldData) => updateProjectData(oldData)
-      );
-
       const filteredQueries = queryClient.getQueriesData<
         InfiniteData<GetProjectsResponse>
       >({
