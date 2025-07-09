@@ -1,4 +1,3 @@
-import React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
@@ -9,13 +8,11 @@ import { api } from "@/lib/axios";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { useAuth } from "@/hooks/useAuth";
 import { useDebounce } from "@/hooks/useDebounce";
+import { PaginatedProjectList } from "@/components/layout/PaginatedProjectList";
 import { Typography } from "@/components/ui/typography";
 import MultipleSelector from "@/components/ui/multiple-selector";
 import type { Option } from "@/components/ui/multiple-selector";
 import { Input } from "@/components/ui/input";
-import { ProjectCardSkeleton } from "@/components/layout/ProjectCardSkeleton";
-import { ProjectCard } from "@/components/layout/ProjectCard";
-import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import {
   Select,
@@ -33,34 +30,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-
-// @to-do: these types are the same as index.tsx types. Fix it
-type Tag = {
-  id: number;
-  name: string;
-};
-
-export type GetTagsResponse = {
-  tags: Tag[];
-};
-
-type Project = {
-  id: number;
-  name: string;
-  description: string | null;
-  repoUrl: string;
-  gitHubStars: number;
-  license: string | null;
-  liveLink: string | null;
-  avatarUrl: string | null;
-  programmingLanguage: string | null;
-  tags: Tag[];
-  _count: {
-    votes: number;
-  };
-  isBookmarked?: boolean;
-  isVoted?: boolean;
-};
+import type { PaginatedProjects, Tag } from "@/@types/project";
 
 type FilteredProjectsQueryParams = {
   limit: number;
@@ -68,12 +38,6 @@ type FilteredProjectsQueryParams = {
   sort: string;
   tagIds?: string;
   search?: string;
-};
-
-export type GetProjectsResponse = {
-  nextPage: number | null;
-  projects: Project[];
-  totalCount: number;
 };
 
 export const Route = createFileRoute("/projects/")({
@@ -113,7 +77,7 @@ function Projects() {
   } = useQuery({
     staleTime: 1000 * 60 * 60, // 1 hour
     queryKey: ["tags"],
-    queryFn: async (): Promise<GetTagsResponse> => {
+    queryFn: async (): Promise<{ tags: Tag[] }> => {
       const response = await api.get(
         `${import.meta.env.VITE_BACKEND_BASE_URL}/api/tags`
       );
@@ -136,7 +100,7 @@ function Projects() {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["filtered-projects", debouncedFilterProjectsFormValues],
-    queryFn: async ({ pageParam }): Promise<GetProjectsResponse> => {
+    queryFn: async ({ pageParam }): Promise<PaginatedProjects> => {
       const {
         projectName,
         tagOptions,
@@ -174,12 +138,6 @@ function Projects() {
       label: tag.name,
       value: String(tag.id),
     })) ?? [];
-
-  const loadedProjectsCount = projectsData?.pages.reduce((acc, currentPage) => {
-    return acc + currentPage.projects.length;
-  }, 0);
-
-  const projectsTotalCount = projectsData?.pages[0].totalCount;
 
   return (
     <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
@@ -282,63 +240,14 @@ function Projects() {
         </form>
       </Form>
 
-      <div className="space-y-8">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
-          {isProjectsError ? (
-            <div className="text-center text-destructive">
-              <Typography variant="p">Failed to load projects :(</Typography>
-            </div>
-          ) : isProjectsPending ? (
-            <>
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-            </>
-          ) : (
-            projectsData.pages.map((group, i) => (
-              <React.Fragment key={i}>
-                {group.projects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    id={project.id}
-                    description={project.description}
-                    gitHubRepoUrl={project.repoUrl}
-                    gitHubStars={project.gitHubStars}
-                    license={project.license}
-                    liveLink={project.liveLink}
-                    logoUrl={project.avatarUrl}
-                    programmingLanguage={project.programmingLanguage}
-                    title={project.name}
-                    votes={project._count.votes}
-                    tags={project.tags}
-                    isBookmarked={project.isBookmarked}
-                    isVoted={project.isVoted}
-                  />
-                ))}
-              </React.Fragment>
-            ))
-          )}
-        </div>
-
-        <Typography className="text-center">
-          Showing {loadedProjectsCount} of {projectsTotalCount}
-        </Typography>
-
-        {hasNextPage && !isProjectsError && (
-          <Button
-            className="font-bold flex mx-auto"
-            size="xlg"
-            variant="outline"
-            disabled={isProjectsPending || isFetchingNextPage}
-            onClick={() => fetchNextPage()}
-          >
-            {isFetchingNextPage ? "Loading ..." : "Load more..."}
-          </Button>
-        )}
-      </div>
+      <PaginatedProjectList
+        data={projectsData}
+        isPending={isProjectsPending}
+        isError={isProjectsError}
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+      />
     </div>
   );
 }

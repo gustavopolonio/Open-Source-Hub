@@ -28,7 +28,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import type { User } from "@/types/user";
+import type { User } from "@/@types/user";
 
 const updateAuthenticatedUserFormSchema = z.object({
   username: z.string().min(3),

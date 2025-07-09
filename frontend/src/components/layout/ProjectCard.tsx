@@ -5,8 +5,6 @@ import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
-import type { GetTagsResponse } from "@/routes/projects";
-import type { GetProjectsResponse } from "@/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { Typography } from "@/components/ui/typography";
@@ -48,11 +46,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-type Tag = {
-  id: number;
-  name: string;
-};
+import type {
+  PaginatedProjects,
+  Tag,
+  UpdateProjectRequestBody,
+  UpdateProjectResponse,
+} from "@/@types/project";
 
 type ProjectCardProps = {
   id: number;
@@ -69,18 +68,6 @@ type ProjectCardProps = {
   variant?: "default" | "editable";
   isVoted?: boolean;
   tags: Tag[];
-};
-
-type UpdateProjectRequestBody = {
-  liveLink: string;
-  tagIds: number[];
-};
-
-type UpdateProjectResponse = {
-  updatedProject: {
-    liveLink: string;
-    tags: Tag[];
-  };
 };
 
 const tagOptionsSchema = z.object({
@@ -137,7 +124,7 @@ export function ProjectCard({
   } = useQuery({
     staleTime: 1000 * 60 * 60, // 1 hour
     queryKey: ["tags"],
-    queryFn: async (): Promise<GetTagsResponse> => {
+    queryFn: async (): Promise<{ tags: Tag[] }> => {
       const response = await api.get(
         `${import.meta.env.VITE_BACKEND_BASE_URL}/api/tags`
       );
@@ -158,7 +145,7 @@ export function ProjectCard({
       queryClient.invalidateQueries({ queryKey: ["bookmarked-projects"] });
 
       function updateBookmarksData(
-        oldData: InfiniteData<GetProjectsResponse> | undefined
+        oldData: InfiniteData<PaginatedProjects> | undefined
       ) {
         if (!oldData) return oldData;
 
@@ -180,13 +167,13 @@ export function ProjectCard({
         };
       }
 
-      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
         ["projects"],
         (oldData) => updateBookmarksData(oldData)
       );
 
       const filteredQueries = queryClient.getQueriesData<
-        InfiniteData<GetProjectsResponse>
+        InfiniteData<PaginatedProjects>
       >({
         queryKey: ["filtered-projects"],
         exact: false,
@@ -217,7 +204,7 @@ export function ProjectCard({
     },
     onSuccess(_data, _variables, context) {
       function updateVotesData(
-        oldData: InfiniteData<GetProjectsResponse> | undefined
+        oldData: InfiniteData<PaginatedProjects> | undefined
       ) {
         if (!oldData) return oldData;
 
@@ -248,23 +235,23 @@ export function ProjectCard({
         };
       }
 
-      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
         ["projects"],
         (oldData) => updateVotesData(oldData)
       );
 
-      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
         ["bookmarked-projects"],
         (oldData) => updateVotesData(oldData)
       );
 
-      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
         ["submitted-projects"],
         (oldData) => updateVotesData(oldData)
       );
 
       const filteredQueries = queryClient.getQueriesData<
-        InfiniteData<GetProjectsResponse>
+        InfiniteData<PaginatedProjects>
       >({
         queryKey: ["filtered-projects"],
         exact: false,
@@ -300,18 +287,18 @@ export function ProjectCard({
       return response.data;
     },
     onSuccess(data: UpdateProjectResponse) {
-      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
         ["submitted-projects"],
         (oldData) => updateProjectData(oldData)
       );
 
-      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
         ["bookmarked-projects"],
         (oldData) => updateProjectData(oldData)
       );
 
       function updateProjectData(
-        oldData: InfiniteData<GetProjectsResponse> | undefined
+        oldData: InfiniteData<PaginatedProjects> | undefined
       ) {
         if (!oldData) return oldData;
 
@@ -335,7 +322,7 @@ export function ProjectCard({
       }
 
       const filteredQueries = queryClient.getQueriesData<
-        InfiniteData<GetProjectsResponse>
+        InfiniteData<PaginatedProjects>
       >({
         queryKey: ["filtered-projects"],
         exact: false,

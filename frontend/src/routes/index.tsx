@@ -1,42 +1,12 @@
-import React from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Typography } from "@/components/ui/typography";
-import { Button } from "@/components/ui/button";
-import { ProjectCard } from "@/components/layout/ProjectCard";
-import { ProjectCardSkeleton } from "@/components/layout/ProjectCardSkeleton";
 import { api } from "@/lib/axios";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { useAuth } from "@/hooks/useAuth";
-
-type Tag = {
-  id: number;
-  name: string;
-};
-
-type Project = {
-  id: number;
-  name: string;
-  description: string | null;
-  repoUrl: string;
-  gitHubStars: number;
-  license: string | null;
-  liveLink: string | null;
-  avatarUrl: string | null;
-  programmingLanguage: string | null;
-  tags: Tag[];
-  _count: {
-    votes: number;
-  };
-  isBookmarked?: boolean;
-  isVoted?: boolean;
-};
-
-export type GetProjectsResponse = {
-  nextPage: number | null;
-  projects: Project[];
-  totalCount: number;
-};
+import { PaginatedProjectList } from "@/components/layout/PaginatedProjectList";
+import { Typography } from "@/components/ui/typography";
+import { Button } from "@/components/ui/button";
+import type { PaginatedProjects } from "@/@types/project";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -60,7 +30,7 @@ function Index() {
       pageParam,
     }: {
       pageParam: number;
-    }): Promise<GetProjectsResponse> => {
+    }): Promise<PaginatedProjects> => {
       const response = await axiosInstance.get(
         `${import.meta.env.VITE_BACKEND_BASE_URL}/projects`,
         {
@@ -95,58 +65,17 @@ function Index() {
           </Button>
         </div>
       </div>
-      <div className="space-y-8">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
-          {isError ? (
-            <div className="col-span-full text-center text-destructive">
-              <Typography variant="p">Failed to load projects :(</Typography>
-            </div>
-          ) : isPending ? (
-            <>
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-            </>
-          ) : (
-            data.pages.map((group, i) => (
-              <React.Fragment key={i}>
-                {group.projects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    id={project.id}
-                    description={project.description}
-                    gitHubRepoUrl={project.repoUrl}
-                    gitHubStars={project.gitHubStars}
-                    license={project.license}
-                    liveLink={project.liveLink}
-                    logoUrl={project.avatarUrl}
-                    programmingLanguage={project.programmingLanguage}
-                    title={project.name}
-                    votes={project._count.votes}
-                    tags={project.tags}
-                    isBookmarked={project.isBookmarked}
-                    isVoted={project.isVoted}
-                  />
-                ))}
-              </React.Fragment>
-            ))
-          )}
-        </div>
-        {hasNextPage && !isError && (
-          <Button
-            className="font-bold flex mx-auto"
-            size="xlg"
-            variant="outline"
-            disabled={isPending || isFetchingNextPage}
-            onClick={() => fetchNextPage()}
-          >
-            {isFetchingNextPage ? "Loading ..." : "Load more..."}
-          </Button>
-        )}
-      </div>
+
+      <PaginatedProjectList
+        data={data}
+        isPending={isPending}
+        isError={isError}
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        showCountInfo={false}
+      />
+
       <div className="max-w-2xl mx-auto space-y-4">
         <Typography variant="h2" className="text-center mt-12">
           Open your code

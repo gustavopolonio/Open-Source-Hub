@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { User } from "@/types/user";
+import type { User } from "@/@types/user";
 
 export function Header() {
   const { isAuthenticated } = useAuth();
