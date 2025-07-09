@@ -399,7 +399,24 @@ export async function getAuthenticatedUserBookmarkedProjects(
       where: {
         userId,
       },
-      include: { project: true },
+      include: {
+        project: {
+          include: {
+            tags: true,
+            _count: {
+              select: { votes: true },
+            },
+            votes: {
+              where: { userId },
+              select: { userId: true },
+            },
+            bookmarks: {
+              where: { userId },
+              select: { userId: true },
+            },
+          },
+        },
+      },
       skip: (page - 1) * limit,
       take: limit + 1, // Fetch one extra item to check if there's a next page
     });
@@ -410,9 +427,24 @@ export async function getAuthenticatedUserBookmarkedProjects(
       (bookmark) => bookmark.project
     );
 
+    const projectsWithVotesAndBookmarksStatus = paginatedProjects.map(
+      ({ bookmarks, votes, ...rest }) => ({
+        ...rest,
+        isBookmarked: bookmarks && bookmarks.length > 0,
+        isVoted: votes && votes.length > 0,
+      })
+    );
+
+    const totalCount = await prisma.bookmark.count({
+      where: {
+        userId,
+      },
+    });
+
     res.status(200).json({
-      projects: paginatedProjects,
+      projects: projectsWithVotesAndBookmarksStatus,
       nextPage: hasNextPage ? page + 1 : null,
+      totalCount,
     });
     return;
   } catch (error) {
