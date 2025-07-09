@@ -109,7 +109,7 @@ export async function getPublicProjects(req: Request, res: Response) {
     const hasNextPage = projects.length > limit;
     const paginatedProjects = hasNextPage ? projects.slice(0, -1) : projects;
 
-    const projectsWithBookmarkStatus = paginatedProjects.map(
+    const projectsWithVotesAndBookmarksStatus = paginatedProjects.map(
       ({ bookmarks, votes, ...rest }) => ({
         ...rest,
         isBookmarked: bookmarks && bookmarks.length > 0,
@@ -143,7 +143,7 @@ export async function getPublicProjects(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      projects: projectsWithBookmarkStatus,
+      projects: projectsWithVotesAndBookmarksStatus,
       nextPage: hasNextPage ? page + 1 : null,
       totalCount,
     });
