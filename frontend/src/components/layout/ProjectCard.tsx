@@ -155,6 +155,8 @@ export function ProjectCard({
   const toggleBookmarkMutation = useMutation({
     mutationFn: handleBookmarkToggle,
     onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["bookmarked-projects"] });
+
       function updateBookmarksData(
         oldData: InfiniteData<GetProjectsResponse> | undefined
       ) {
@@ -251,6 +253,16 @@ export function ProjectCard({
         (oldData) => updateVotesData(oldData)
       );
 
+      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+        ["bookmarked-projects"],
+        (oldData) => updateVotesData(oldData)
+      );
+
+      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+        ["submitted-projects"],
+        (oldData) => updateVotesData(oldData)
+      );
+
       const filteredQueries = queryClient.getQueriesData<
         InfiniteData<GetProjectsResponse>
       >({
@@ -262,11 +274,6 @@ export function ProjectCard({
         // @to-do: when user votes on page /projects the oerder of 'Most voted' doesnt change, because it's cached. Check this
         queryClient.setQueryData(queryKey, updateVotesData(data));
       }
-
-      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
-        ["submitted-projects"],
-        (oldData) => updateVotesData(oldData)
-      );
 
       // @to-do: add success toast component
     },
@@ -293,6 +300,16 @@ export function ProjectCard({
       return response.data;
     },
     onSuccess(data: UpdateProjectResponse) {
+      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+        ["submitted-projects"],
+        (oldData) => updateProjectData(oldData)
+      );
+
+      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
+        ["bookmarked-projects"],
+        (oldData) => updateProjectData(oldData)
+      );
+
       function updateProjectData(
         oldData: InfiniteData<GetProjectsResponse> | undefined
       ) {
@@ -329,11 +346,6 @@ export function ProjectCard({
         queryClient.setQueryData(queryKey, updateProjectData(data));
       }
 
-      queryClient.setQueryData<InfiniteData<GetProjectsResponse>>(
-        ["submitted-projects"],
-        (oldData) => updateProjectData(oldData)
-      );
-
       // @to-do: add success toast component
       alert("Project updated!");
       setIsUpdateProjectModalOpen(false);
@@ -366,8 +378,8 @@ export function ProjectCard({
       return response.data;
     },
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ["submitted-projects"] });
-      queryClient.invalidateQueries({ queryKey: ["filtered-projects"] });
+      queryClient.refetchQueries({ queryKey: ["submitted-projects"] });
+      queryClient.refetchQueries({ queryKey: ["bookmarked-projects"] }); // @to-do: try to remove this by componentizing BookmarkProjectsList
 
       // @to-do: add success toast component
       alert("Project deleted!");

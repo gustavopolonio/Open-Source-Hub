@@ -129,8 +129,7 @@ function SubmitProject() {
       return response.data;
     },
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ["submitted-projects"] });
-      queryClient.invalidateQueries({ queryKey: ["filtered-projects"] });
+      queryClient.refetchQueries({ queryKey: ["submitted-projects"] });
 
       // @to-do: add success toast component
       alert("Project submitted!");

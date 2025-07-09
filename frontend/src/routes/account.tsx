@@ -168,7 +168,6 @@ function Account() {
     hasNextPage: bookmarkedProjectsHasNextPage,
     isFetchingNextPage: isFetchingBookmarkedProjectsNextPage,
   } = useInfiniteQuery({
-    // staleTime: 1000 * 60 * 60, // 1 hour
     queryKey: ["bookmarked-projects"],
     queryFn: async ({
       pageParam,

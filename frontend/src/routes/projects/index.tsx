@@ -135,7 +135,6 @@ function Projects() {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    staleTime: 1000 * 60 * 5, // 5 min
     queryKey: ["filtered-projects", debouncedFilterProjectsFormValues],
     queryFn: async ({ pageParam }): Promise<GetProjectsResponse> => {
       const {
