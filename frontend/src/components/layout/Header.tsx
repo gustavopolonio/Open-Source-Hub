@@ -3,10 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
-import { Button } from "../ui/button";
-import { Logo } from "../ui/logo";
-import { Typography } from "../ui/typography";
-import { Skeleton } from "../ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
+import { Typography } from "@/components/ui/typography";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -17,15 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-export type User = {
-  user: {
-    name: string;
-    avatarUrl: string;
-    email: string;
-    bio: string;
-  };
-};
+import type { User } from "@/types/user";
 
 export function Header() {
   const { isAuthenticated } = useAuth();
@@ -33,7 +25,8 @@ export function Header() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
-  const { data, isError, isPending } = useQuery<User>({
+
+  const { data, isError, isPending } = useQuery<{ user: User }>({
     queryKey: ["user"],
     staleTime: 1000 * 60 * 60, // 1 hour
     queryFn: async () => {
@@ -45,6 +38,7 @@ export function Header() {
   const isLoginPage = pathname === "/login";
 
   return (
+    // @to-do: position sticky
     <div className="flex justify-between items-center max-w-7xl mx-auto h-16 px-4">
       <Link to="/">
         <Logo />
@@ -67,6 +61,7 @@ export function Header() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>
                 <Typography variant="p" className="font-bold">
@@ -74,6 +69,7 @@ export function Header() {
                 </Typography>
                 <Typography variant="p">{data.user.email}</Typography>
               </DropdownMenuLabel>
+
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild className="p-0">
                   <Link
@@ -84,7 +80,9 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+
               <DropdownMenuSeparator />
+
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild className="p-0">
                   <Link
@@ -108,7 +106,9 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+
               <DropdownMenuSeparator />
+
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild className="p-0">
                   <Link
