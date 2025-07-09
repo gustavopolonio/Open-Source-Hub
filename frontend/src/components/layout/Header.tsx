@@ -38,100 +38,106 @@ export function Header() {
   const isLoginPage = pathname === "/login";
 
   return (
-    // @to-do: position sticky
-    <div className="flex justify-between items-center max-w-7xl mx-auto h-16 px-4">
-      <Link to="/">
-        <Logo />
-      </Link>
+    <header className="sticky top-0 border-b z-30 bg-background shadow-md">
+      <div className="flex justify-between items-center max-w-7xl mx-auto h-16 px-4">
+        <Link to="/">
+          <Logo />
+        </Link>
 
-      {isAuthenticated ? (
-        isError ? (
-          <Typography variant="p" className="text-destructive">
-            Failed to load user :(
-          </Typography>
-        ) : isPending ? (
-          <Skeleton className="w-8 h-8 rounded-full" />
+        {isAuthenticated ? (
+          isError ? (
+            <Typography variant="p" className="text-destructive">
+              Failed to load user :(
+            </Typography>
+          ) : isPending ? (
+            <Skeleton className="w-8 h-8 rounded-full" />
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-0 rounded-full">
+                  <Avatar>
+                    <AvatarImage
+                      src={data.user.avatarUrl}
+                      alt={data.user.name}
+                    />
+                    <AvatarFallback>
+                      {data.user.name.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  <Typography variant="p" className="font-bold">
+                    {data.user.name}
+                  </Typography>
+                  <Typography variant="p">{data.user.email}</Typography>
+                </DropdownMenuLabel>
+
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild className="p-0">
+                    <Link
+                      to="/account"
+                      className="w-full px-2 py-1.5 cursor-pointer"
+                    >
+                      Account settings
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild className="p-0">
+                    <Link
+                      to="/projects"
+                      className="w-full px-2 py-1.5 cursor-pointer"
+                    >
+                      All projects
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="p-0">
+                    <Link
+                      to="/projects/submit"
+                      className="w-full px-2 py-1.5 cursor-pointer"
+                    >
+                      Submit your project
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="p-0">
+                    <Link to="/" className="w-full px-2 py-1.5 cursor-pointer">
+                      Homepage
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild className="p-0">
+                    <Link
+                      to="/login"
+                      className="flex items-center justify-between w-full px-2 py-1.5 cursor-pointer"
+                    >
+                      Log out
+                      <LogOut />
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )
+        ) : isLoginPage ? (
+          <Button asChild>
+            <Link to="/signup">Sign up</Link>
+          </Button>
         ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="p-0 rounded-full">
-                <Avatar>
-                  <AvatarImage src={data.user.avatarUrl} alt={data.user.name} />
-                  <AvatarFallback>{data.user.name.slice(0, 2)}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>
-                <Typography variant="p" className="font-bold">
-                  {data.user.name}
-                </Typography>
-                <Typography variant="p">{data.user.email}</Typography>
-              </DropdownMenuLabel>
-
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild className="p-0">
-                  <Link
-                    to="/account"
-                    className="w-full px-2 py-1.5 cursor-pointer"
-                  >
-                    Account settings
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild className="p-0">
-                  <Link
-                    to="/projects"
-                    className="w-full px-2 py-1.5 cursor-pointer"
-                  >
-                    All projects
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="p-0">
-                  <Link
-                    to="/projects/submit"
-                    className="w-full px-2 py-1.5 cursor-pointer"
-                  >
-                    Submit your project
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="p-0">
-                  <Link to="/" className="w-full px-2 py-1.5 cursor-pointer">
-                    Homepage
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild className="p-0">
-                  <Link
-                    to="/login"
-                    className="flex items-center justify-between w-full px-2 py-1.5 cursor-pointer"
-                  >
-                    Log out
-                    <LogOut />
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-      ) : isLoginPage ? (
-        <Button asChild>
-          <Link to="/signup">Sign up</Link>
-        </Button>
-      ) : (
-        <Button asChild>
-          <Link to="/login">Log in</Link>
-        </Button>
-      )}
-    </div>
+          <Button asChild>
+            <Link to="/login">Log in</Link>
+          </Button>
+        )}
+      </div>
+    </header>
   );
 }
