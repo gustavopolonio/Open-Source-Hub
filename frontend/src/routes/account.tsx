@@ -160,6 +160,36 @@ function Account() {
     getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 
+  const {
+    data: bookmarkedProjectsData,
+    isPending: isBookmarkedProjectsPending,
+    isError: isBookmarkedProjectsError,
+    fetchNextPage: fetchBookmarkedProjectsNextPage,
+    hasNextPage: bookmarkedProjectsHasNextPage,
+    isFetchingNextPage: isFetchingBookmarkedProjectsNextPage,
+  } = useInfiniteQuery({
+    // staleTime: 1000 * 60 * 60, // 1 hour
+    queryKey: ["bookmarked-projects"],
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: number;
+    }): Promise<GetProjectsResponse> => {
+      const response = await axiosPrivate.get(
+        `${import.meta.env.VITE_BACKEND_BASE_URL}/users/me/bookmarks`,
+        {
+          params: {
+            limit: 6,
+            page: pageParam,
+          },
+        }
+      );
+      return response.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  });
+
   function onUpdateUser(
     values: z.infer<typeof updateAuthenticatedUserFormSchema>
   ) {
@@ -185,6 +215,16 @@ function Account() {
 
   const submittedProjectsTotalCount =
     submittedProjectsData?.pages[0].totalCount;
+
+  const loadedBookmarkedProjectsCount = bookmarkedProjectsData?.pages.reduce(
+    (acc, currentPage) => {
+      return acc + currentPage.projects.length;
+    },
+    0
+  );
+
+  const bookmarkedProjectsTotalCount =
+    bookmarkedProjectsData?.pages[0].totalCount;
 
   return (
     <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
@@ -413,7 +453,73 @@ function Account() {
             </div>
           </TabsContent>
 
-          <TabsContent value="bookmarked"></TabsContent>
+          <TabsContent value="bookmarked">
+            <div className="space-y-8">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
+                {isBookmarkedProjectsError ? (
+                  <div className="col-span-full text-center text-destructive">
+                    <Typography variant="p">
+                      Failed to load projects :(
+                    </Typography>
+                  </div>
+                ) : isBookmarkedProjectsPending ? (
+                  <>
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                  </>
+                ) : (
+                  bookmarkedProjectsData.pages.map((group, i) => (
+                    <React.Fragment key={i}>
+                      {group.projects.map((project) => (
+                        <ProjectCard
+                          key={project.id}
+                          id={project.id}
+                          description={project.description}
+                          gitHubRepoUrl={project.repoUrl}
+                          gitHubStars={project.gitHubStars}
+                          license={project.license}
+                          liveLink={project.liveLink}
+                          logoUrl={project.avatarUrl}
+                          programmingLanguage={project.programmingLanguage}
+                          title={project.name}
+                          votes={project._count.votes}
+                          tags={project.tags}
+                          isBookmarked={project.isBookmarked}
+                          isVoted={project.isVoted}
+                        />
+                      ))}
+                    </React.Fragment>
+                  ))
+                )}
+              </div>
+
+              <Typography className="text-center">
+                Showing {loadedBookmarkedProjectsCount} of{" "}
+                {bookmarkedProjectsTotalCount}
+              </Typography>
+
+              {bookmarkedProjectsHasNextPage && !isBookmarkedProjectsError && (
+                <Button
+                  className="font-bold flex mx-auto"
+                  size="xlg"
+                  variant="outline"
+                  disabled={
+                    isBookmarkedProjectsPending ||
+                    isFetchingBookmarkedProjectsNextPage
+                  }
+                  onClick={() => fetchBookmarkedProjectsNextPage()}
+                >
+                  {isFetchingBookmarkedProjectsNextPage
+                    ? "Loading ..."
+                    : "Load more..."}
+                </Button>
+              )}
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
