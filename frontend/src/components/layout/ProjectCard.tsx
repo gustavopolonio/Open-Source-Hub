@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
 import { useAuth } from "@/hooks/useAuth";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
+import { ConfirmDeletionDialog } from "@/components/layout/ConfirmDeletionDialog";
 import { Typography } from "@/components/ui/typography";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,27 +48,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import type {
+  Project,
   PaginatedProjects,
   Tag,
   UpdateProjectRequestBody,
   UpdateProjectResponse,
 } from "@/@types/project";
 
-type ProjectCardProps = {
-  id: number;
-  logoUrl: string | null;
-  title: string;
-  license: string | null;
-  description: string | null;
-  liveLink: string | null;
-  gitHubStars: number;
+type ProjectCardProps = Omit<Project, "_count"> & {
   votes: number;
-  programmingLanguage: string | null;
-  gitHubRepoUrl: string;
-  isBookmarked?: boolean;
   variant?: "default" | "editable";
-  isVoted?: boolean;
-  tags: Tag[];
 };
 
 const tagOptionsSchema = z.object({
@@ -81,40 +71,28 @@ const updateProjectFormSchema = z.object({
   liveLink: z.string().url(),
 });
 
-function getDeleteProjectFormSchema(title: string) {
-  return z.object({
-    projectName: z
-      .string()
-      .refine(
-        (projectName) => projectName === title,
-        "The project name does not match"
-      ),
-  });
-}
-
 export function ProjectCard({
   id,
   description,
   gitHubStars,
   license,
   liveLink,
-  logoUrl,
-  programmingLanguage,
-  title,
+  avatarUrl,
+  name,
   votes,
-  gitHubRepoUrl,
+  repoUrl,
   tags,
   variant = "default",
   isBookmarked,
   isVoted,
 }: ProjectCardProps) {
-  const deleteProjectFormSchema = getDeleteProjectFormSchema(title);
   const { isAuthenticated } = useAuth();
   const axiosPrivate = useAxiosPrivate();
   const queryClient = useQueryClient();
+  // @to-do: update all modal to dialog
   const [isUpdateProjectModalOpen, setIsUpdateProjectModalOpen] =
     useState(false);
-  const [isDeleteProjectModalOpen, setIsDeleteProjectModalOpen] =
+  const [isDeleteProjectDialogOpen, setIsDeleteProjectDialogOpen] =
     useState(false);
 
   const {
@@ -352,13 +330,6 @@ export function ProjectCard({
     });
   }
 
-  const deleteProjectForm = useForm<z.infer<typeof deleteProjectFormSchema>>({
-    resolver: zodResolver(deleteProjectFormSchema),
-    defaultValues: {
-      projectName: "",
-    },
-  });
-
   const deleteProjectMutation = useMutation({
     mutationFn: async () => {
       const response = await axiosPrivate.delete(`/projects/${id}`);
@@ -366,11 +337,11 @@ export function ProjectCard({
     },
     onSuccess() {
       queryClient.refetchQueries({ queryKey: ["submitted-projects"] });
-      queryClient.refetchQueries({ queryKey: ["bookmarked-projects"] }); // @to-do: try to remove this by componentizing BookmarkProjectsList
+      queryClient.refetchQueries({ queryKey: ["bookmarked-projects"] });
 
       // @to-do: add success toast component
       alert("Project deleted!");
-      setIsDeleteProjectModalOpen(false);
+      setIsDeleteProjectDialogOpen(false);
     },
     onError() {
       // @to-do: add failed toast component
@@ -378,46 +349,31 @@ export function ProjectCard({
     },
   });
 
-  function onDeleteProject() {
-    deleteProjectMutation.mutate();
-  }
-
   const tagOptions: Option[] =
     tagsData?.tags.map((tag) => ({
       label: tag.name,
       value: String(tag.id),
     })) ?? [];
 
+  // https://tweakcn.com/editor/theme
   return (
     <div className="relative rounded-xl shadow-sm hover:shadow-[var(--shadow-xl)]">
-      <a href={gitHubRepoUrl} target="_blank" className="absolute inset-0" />
+      <a href={repoUrl} target="_blank" className="absolute inset-0" />
+
       <Card className="transition-transform duration-200 gap-3 h-full">
         <CardHeader className="grid-cols-[auto_1fr_auto]!">
           <img
-            src={logoUrl || "https://github.com/evilrabbit.png"}
-            alt={title}
+            src={avatarUrl || "https://github.com/evilrabbit.png"}
+            alt={name}
             className="w-12 h-auto rounded-sm"
           />
           <div className="min-h-[52px] flex flex-col justify-center gap-1">
-            <CardTitle className="line-clamp-2 break-all">{title}</CardTitle>
+            <CardTitle className="line-clamp-2 break-all">{name}</CardTitle>
             <CardDescription className="line-clamp-1">
               {license || "No license"}
             </CardDescription>
           </div>
           <CardAction className="col-start-3 flex items-center gap-2.5 ml-2">
-            <Tooltip>
-              <TooltipTrigger className="z-10 w-5 h-5 rounded-full border-2 border-[var(--primary)] bg-[var(--secondary)]"></TooltipTrigger>
-              <TooltipContent className="py-2.5">
-                <p className="flex gap-1">
-                  {tags.map((tag) => (
-                    <Badge key={tag.name} variant="secondary">
-                      {tag.name}
-                    </Badge>
-                  ))}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-
             {isAuthenticated && variant === "default" && (
               <Tooltip>
                 <TooltipTrigger
@@ -552,86 +508,19 @@ export function ProjectCard({
                   </DialogContent>
                 </Dialog>
 
-                <Dialog
-                  open={isDeleteProjectModalOpen}
-                  onOpenChange={(open) => {
-                    setIsDeleteProjectModalOpen(open);
-                    if (!open) {
-                      setTimeout(() => {
-                        deleteProjectForm.reset({
-                          projectName: "",
-                        });
-                      }, 350);
-                    }
-                  }}
-                >
-                  <Tooltip>
-                    <TooltipTrigger asChild className="z-10">
-                      <DialogTrigger asChild>
-                        <Icon name="trash" outlineColor="#000" />
-                      </DialogTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Delete project</TooltipContent>
-                  </Tooltip>
-                  <DialogContent>
-                    <Form {...deleteProjectForm}>
-                      <form
-                        onSubmit={deleteProjectForm.handleSubmit(
-                          onDeleteProject
-                        )}
-                        className="grid gap-4"
-                      >
-                        <DialogHeader>
-                          <DialogTitle>Delete project</DialogTitle>
-                          <DialogDescription>
-                            This project will be deleted, along with all of its
-                            votes, bookmarks and settings.
-                          </DialogDescription>
-                          <Typography className="text-sm text-destructive-secondary-foreground bg-destructive-secondary py-2 px-3 rounded-md">
-                            Warning: This action is not reversible. Please be
-                            certain.
-                          </Typography>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-6 border-y-[1px] border-[--border]">
-                          <FormField
-                            control={deleteProjectForm.control}
-                            name="projectName"
-                            render={({ field }) => (
-                              <FormItem className="w-full">
-                                <FormLabel>
-                                  Enter the project name <b>{title}</b> to
-                                  continue
-                                </FormLabel>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                          </DialogClose>
-                          <Button
-                            disabled={deleteProjectMutation.isPending}
-                            type="submit"
-                            variant="destructive"
-                          >
-                            {deleteProjectMutation.isPending
-                              ? "Deleting..."
-                              : "Delete"}
-                          </Button>
-                        </DialogFooter>
-                      </form>
-                    </Form>
-                  </DialogContent>
-                </Dialog>
+                <ConfirmDeletionDialog
+                  isOpen={isDeleteProjectDialogOpen}
+                  setOpen={setIsDeleteProjectDialogOpen}
+                  entityType="project"
+                  entityName={name}
+                  deletionDescription="This project will be deleted, along with all of its votes, bookmarks and settings."
+                  deleteMutation={deleteProjectMutation}
+                />
               </div>
             )}
           </CardAction>
         </CardHeader>
+
         <CardContent className="space-y-2">
           <Typography variant="p" className="line-clamp-2 min-h-10">
             {description}
@@ -655,51 +544,61 @@ export function ProjectCard({
             </Typography>
           )}
         </CardContent>
-        <CardFooter className="flex gap-4">
-          <div className="flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger className="z-10">
-                <Icon
-                  name="star"
-                  outlineColor="oklch(90.5% 0.182 98.111)"
-                  fill="oklch(90.5% 0.182 98.111)"
-                />
-              </TooltipTrigger>
-              <TooltipContent>GitHub stars</TooltipContent>
-            </Tooltip>
-            {gitHubStars}
+
+        <CardFooter className="flex flex-col gap-4">
+          <div className="w-full flex gap-4">
+            <div className="flex items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger className="z-10">
+                  <Icon
+                    name="star"
+                    outlineColor="oklch(90.5% 0.182 98.111)"
+                    fill="oklch(90.5% 0.182 98.111)"
+                  />
+                </TooltipTrigger>
+                <TooltipContent>GitHub stars</TooltipContent>
+              </Tooltip>
+              {gitHubStars}
+            </div>
+            <div className="flex items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger
+                  className="z-10"
+                  onClick={() => {
+                    if (isAuthenticated) toggleVoteMutation.mutate();
+                  }}
+                >
+                  <Icon
+                    name="triangle"
+                    outlineColor="oklch(54.6% 0.245 262.881)"
+                    fill={
+                      isAuthenticated
+                        ? isVoted
+                          ? "oklch(54.6% 0.245 262.881)"
+                          : "transparent"
+                        : "oklch(54.6% 0.245 262.881)"
+                    }
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isAuthenticated
+                    ? isVoted
+                      ? "Unvote"
+                      : "Upvote"
+                    : "Upvotes"}
+                </TooltipContent>
+              </Tooltip>
+              {votes}
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger
-                className="z-10"
-                onClick={() => {
-                  if (isAuthenticated) toggleVoteMutation.mutate();
-                }}
-              >
-                <Icon
-                  name="triangle"
-                  outlineColor="oklch(54.6% 0.245 262.881)"
-                  fill={
-                    isAuthenticated
-                      ? isVoted
-                        ? "oklch(54.6% 0.245 262.881)"
-                        : "transparent"
-                      : "oklch(54.6% 0.245 262.881)"
-                  }
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                {isAuthenticated ? (isVoted ? "Unvote" : "Upvote") : "Upvotes"}
-              </TooltipContent>
-            </Tooltip>
-            {votes}
+
+          <div className="w-full flex flex-wrap gap-1">
+            {tags.length ? (
+              tags.map((tag) => <Badge key={tag.name}>{tag.name}</Badge>)
+            ) : (
+              <Typography>No tags related</Typography>
+            )}
           </div>
-          {programmingLanguage && (
-            <Badge variant="secondary" className="ml-auto">
-              {programmingLanguage}
-            </Badge>
-          )}
         </CardFooter>
       </Card>
     </div>

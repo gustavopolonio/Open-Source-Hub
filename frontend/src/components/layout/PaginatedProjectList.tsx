@@ -57,13 +57,13 @@ export function PaginatedProjectList({
                   key={project.id}
                   id={project.id}
                   description={project.description}
-                  gitHubRepoUrl={project.repoUrl}
+                  repoUrl={project.repoUrl}
                   gitHubStars={project.gitHubStars}
                   license={project.license}
                   liveLink={project.liveLink}
-                  logoUrl={project.avatarUrl}
+                  avatarUrl={project.avatarUrl}
                   programmingLanguage={project.programmingLanguage}
-                  title={project.name}
+                  name={project.name}
                   votes={project._count.votes}
                   tags={project.tags}
                   isBookmarked={project.isBookmarked}
