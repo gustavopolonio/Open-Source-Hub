@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
+import { useToggleBookmarkMutation } from "@/hooks/useToggleBookmarkMutation";
 import { ConfirmDeletionDialog } from "@/components/layout/ConfirmDeletionDialog";
 import { EditProjectDialog } from "@/components/layout/EditProjectDialog";
 import { Typography } from "@/components/ui/typography";
@@ -51,64 +52,7 @@ export function ProjectCard({
   const [isEditProjectDialogOpen, setIsEditProjectDialogOpen] = useState(false);
   const [isDeleteProjectDialogOpen, setIsDeleteProjectDialogOpen] =
     useState(false);
-
-  async function handleBookmarkToggle() {
-    return await axiosPrivate({
-      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/projects/${id}/bookmark`,
-      method: isBookmarked ? "DELETE" : "POST",
-    });
-  }
-
-  const toggleBookmarkMutation = useMutation({
-    mutationFn: handleBookmarkToggle,
-    onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ["bookmarked-projects"] });
-
-      function updateBookmarksData(
-        oldData: InfiniteData<PaginatedProjects> | undefined
-      ) {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page) => ({
-            ...page,
-            projects: page.projects.map((project) => {
-              if (project.id === id) {
-                return {
-                  ...project,
-                  isBookmarked: !isBookmarked,
-                };
-              } else {
-                return project;
-              }
-            }),
-          })),
-        };
-      }
-
-      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
-        ["projects"],
-        (oldData) => updateBookmarksData(oldData)
-      );
-
-      const filteredQueries = queryClient.getQueriesData<
-        InfiniteData<PaginatedProjects>
-      >({
-        queryKey: ["filtered-projects"],
-        exact: false,
-      });
-
-      for (const [queryKey, data] of filteredQueries) {
-        queryClient.setQueryData(queryKey, updateBookmarksData(data));
-      }
-      // @to-do: add success toast component
-    },
-    onError() {
-      // @to-do: add failed toast component
-      alert("Failed to update bookmard. Please try again.");
-    },
-  });
+  const toggleBookmarkMutation = useToggleBookmarkMutation(id, !!isBookmarked);
 
   async function handleVoteToggle() {
     return await axiosPrivate({
