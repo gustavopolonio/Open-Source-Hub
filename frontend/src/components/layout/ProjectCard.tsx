@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { InfiniteData } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { useToggleBookmarkMutation } from "@/hooks/useToggleBookmarkMutation";
+import { useToggleVoteMutation } from "@/hooks/useToggleVoteMutation";
 import { ConfirmDeletionDialog } from "@/components/layout/ConfirmDeletionDialog";
 import { EditProjectDialog } from "@/components/layout/EditProjectDialog";
 import { Typography } from "@/components/ui/typography";
@@ -24,7 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Project, PaginatedProjects } from "@/@types/project";
+import type { Project } from "@/@types/project";
 
 type ProjectCardProps = Omit<Project, "_count"> & {
   votes: number;
@@ -53,86 +53,7 @@ export function ProjectCard({
   const [isDeleteProjectDialogOpen, setIsDeleteProjectDialogOpen] =
     useState(false);
   const toggleBookmarkMutation = useToggleBookmarkMutation(id, !!isBookmarked);
-
-  async function handleVoteToggle() {
-    return await axiosPrivate({
-      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/projects/${id}/vote`,
-      method: isVoted ? "DELETE" : "POST",
-    });
-  }
-
-  const toggleVoteMutation = useMutation({
-    mutationFn: handleVoteToggle,
-    onMutate() {
-      return { wasVoted: isVoted };
-    },
-    onSuccess(_data, _variables, context) {
-      function updateVotesData(
-        oldData: InfiniteData<PaginatedProjects> | undefined
-      ) {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page) => ({
-            ...page,
-            projects: page.projects.map((project) => {
-              if (project.id === id) {
-                const currentVotes = project._count.votes;
-                const newVotesCount = context.wasVoted
-                  ? Math.max(currentVotes - 1, 0)
-                  : currentVotes + 1;
-
-                return {
-                  ...project,
-                  isVoted: !isVoted,
-                  _count: {
-                    ...project._count,
-                    votes: newVotesCount,
-                  },
-                };
-              } else {
-                return project;
-              }
-            }),
-          })),
-        };
-      }
-
-      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
-        ["projects"],
-        (oldData) => updateVotesData(oldData)
-      );
-
-      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
-        ["bookmarked-projects"],
-        (oldData) => updateVotesData(oldData)
-      );
-
-      queryClient.setQueryData<InfiniteData<PaginatedProjects>>(
-        ["submitted-projects"],
-        (oldData) => updateVotesData(oldData)
-      );
-
-      const filteredQueries = queryClient.getQueriesData<
-        InfiniteData<PaginatedProjects>
-      >({
-        queryKey: ["filtered-projects"],
-        exact: false,
-      });
-
-      for (const [queryKey, data] of filteredQueries) {
-        // @to-do: when user votes on page /projects the oerder of 'Most voted' doesnt change, because it's cached. Check this
-        queryClient.setQueryData(queryKey, updateVotesData(data));
-      }
-
-      // @to-do: add success toast component
-    },
-    onError() {
-      // @to-do: add failed toast component
-      alert("Failed to update vote. Please try again.");
-    },
-  });
+  const toggleVoteMutation = useToggleVoteMutation(id, !!isVoted);
 
   const deleteProjectMutation = useMutation({
     mutationFn: async () => {
