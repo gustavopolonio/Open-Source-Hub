@@ -38,7 +38,7 @@ const updateAuthenticatedUserFormSchema = z.object({
 
 export function UserSettingsCard() {
   const axiosPrivate = useAxiosPrivate();
-  const [isUpdateUserModalOpen, setIsUpdateUserModalOpen] = useState(false);
+  const [isUpdateUserDialogOpen, setIsUpdateUserDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const {
@@ -88,7 +88,7 @@ export function UserSettingsCard() {
 
       // @to-do: add success toast component
       alert("User updated!");
-      setIsUpdateUserModalOpen(false);
+      setIsUpdateUserDialogOpen(false);
     },
     onError() {
       // @to-do: add failed toast component
@@ -120,9 +120,9 @@ export function UserSettingsCard() {
     <UserSettingsCardSkeleton />
   ) : (
     <Dialog
-      open={isUpdateUserModalOpen}
+      open={isUpdateUserDialogOpen}
       onOpenChange={(open) => {
-        setIsUpdateUserModalOpen(open);
+        setIsUpdateUserDialogOpen(open);
         if (!open && userData) {
           setTimeout(() => {
             updateAuthenticatedUserForm.reset({
@@ -141,7 +141,7 @@ export function UserSettingsCard() {
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
-              setIsUpdateUserModalOpen(true);
+              setIsUpdateUserDialogOpen(true);
             }
           }}
           className="space-y-6 w-full flex flex-col cursor-pointer bg-card text-card-foreground rounded-xl border p-6 shadow-sm transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-ring hover:shadow-[var(--shadow-xl)]"
