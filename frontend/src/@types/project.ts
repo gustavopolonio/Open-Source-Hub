@@ -27,12 +27,12 @@ export type PaginatedProjects = {
   totalCount: number;
 };
 
-export type UpdateProjectRequestBody = {
+export type EditProjectRequestBody = {
   liveLink: string;
   tagIds: number[];
 };
 
-export type UpdateProjectResponse = {
+export type EditProjectResponse = {
   updatedProject: {
     liveLink: string;
     tags: Tag[];
