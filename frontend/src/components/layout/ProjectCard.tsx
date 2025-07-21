@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { useToggleBookmarkMutation } from "@/hooks/useToggleBookmarkMutation";
@@ -74,7 +75,6 @@ export function ProjectCard({
     },
   });
 
-  // https://tweakcn.com/editor/theme
   return (
     <div className="relative rounded-xl shadow-sm hover:shadow-[var(--shadow-xl)]">
       <a href={repoUrl} target="_blank" className="absolute inset-0" />
@@ -136,7 +136,7 @@ export function ProjectCard({
 
         <CardContent className="space-y-2">
           <Typography variant="p" className="line-clamp-2 min-h-10">
-            {description}
+            {description || "..."}
           </Typography>
           {liveLink ? (
             <Button
@@ -153,12 +153,12 @@ export function ProjectCard({
               variant="p"
               className="h-9 m-0! text-[var(--primary)] flex items-center text-sm"
             >
-              No live link provided
+              No live link
             </Typography>
           )}
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-4">
+        <CardFooter className="flex flex-col gap-4 h-full">
           <div className="w-full flex gap-4">
             <div className="flex items-center gap-1">
               <Tooltip>
@@ -205,11 +205,25 @@ export function ProjectCard({
             </div>
           </div>
 
-          <div className="w-full flex flex-wrap gap-1">
+          <div
+            className={cn("w-full flex flex-wrap gap-1", {
+              "mt-auto": !tags.length,
+            })}
+          >
             {tags.length ? (
-              tags.map((tag) => <Badge key={tag.name}>{tag.name}</Badge>)
+              tags.map((tag) => (
+                <Badge
+                  key={tag.name}
+                  variant="secondary"
+                  className="font-semibold"
+                >
+                  {tag.name}
+                </Badge>
+              ))
             ) : (
-              <Typography>No tags related</Typography>
+              <Typography className="text-[var(--primary)] text-sm">
+                No tags related
+              </Typography>
             )}
           </div>
         </CardFooter>
