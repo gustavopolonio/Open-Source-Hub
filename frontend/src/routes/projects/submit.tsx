@@ -17,7 +17,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import MultipleSelector from "@/components/ui/multiple-selector";
+import { MultipleSelector } from "@/components/ui/multiple-selector";
 import type { Option } from "@/components/ui/multiple-selector";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import {

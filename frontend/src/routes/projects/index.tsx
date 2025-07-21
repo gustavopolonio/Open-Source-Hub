@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PaginatedProjectList } from "@/components/layout/PaginatedProjectList";
 import { Typography } from "@/components/ui/typography";
-import MultipleSelector from "@/components/ui/multiple-selector";
+import { MultipleSelector } from "@/components/ui/multiple-selector";
 import type { Option } from "@/components/ui/multiple-selector";
 import { Input } from "@/components/ui/input";
 import { Icon } from "@/components/ui/icon";
