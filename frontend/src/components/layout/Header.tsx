@@ -1,6 +1,7 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
+import { api } from "@/lib/axios";
 import { useAuth } from "@/hooks/useAuth";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { Button } from "@/components/ui/button";
@@ -20,8 +21,9 @@ import {
 import type { User } from "@/@types/user";
 
 export function Header() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, setAccessToken } = useAuth();
   const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
@@ -32,6 +34,20 @@ export function Header() {
     queryFn: async () => {
       const response = await axiosPrivate.get("/users/me");
       return response.data;
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      await api.post("/logout", {}, { withCredentials: true });
+    },
+    onSuccess() {
+      setAccessToken(null);
+      navigate({ to: "/" });
+    },
+    onError() {
+      // @to-do: add failed toast component
+      alert("Failed to logout");
     },
   });
 
@@ -116,13 +132,15 @@ export function Header() {
 
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild className="p-0">
-                    <Link
-                      to="/login"
-                      className="flex items-center justify-between w-full px-2 py-1.5 cursor-pointer"
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="cursor-pointer w-full justify-start focus-visible:border-none focus-visible:ring-0"
+                      onClick={() => logoutMutation.mutate()}
                     >
                       Log out
                       <LogOut />
-                    </Link>
+                    </Button>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
