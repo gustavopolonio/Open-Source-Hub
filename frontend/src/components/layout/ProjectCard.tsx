@@ -127,6 +127,7 @@ export function ProjectCard({
                   entityType="project"
                   entityName={name}
                   deletionDescription="This project will be deleted, along with all of its votes, bookmarks and settings."
+                  trigger={<Icon name="trash" outlineColor="#000" />}
                   deleteMutation={deleteProjectMutation}
                 />
               </div>

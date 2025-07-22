@@ -1,8 +1,8 @@
 import z from "zod";
+import type { ReactElement } from "react";
 import { useForm } from "react-hook-form";
 import { type UseMutationResult } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Icon } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,8 @@ type ConfirmDeletionDialogProps = {
   entityType: string;
   entityName: string;
   deletionDescription?: string;
+  trigger: ReactElement;
+  hasTooltipContent?: boolean;
   deleteMutation: UseMutationResult<unknown, Error, void, unknown>;
 };
 
@@ -56,6 +58,8 @@ export function ConfirmDeletionDialog({
   entityType,
   entityName,
   deletionDescription,
+  trigger,
+  hasTooltipContent = true,
   deleteMutation,
 }: ConfirmDeletionDialogProps) {
   const deleteFormSchema = getDeleteFormSchema(entityName, entityType);
@@ -87,11 +91,11 @@ export function ConfirmDeletionDialog({
     >
       <Tooltip>
         <TooltipTrigger asChild className="z-10">
-          <DialogTrigger asChild>
-            <Icon name="trash" outlineColor="#000" />
-          </DialogTrigger>
+          <DialogTrigger asChild>{trigger}</DialogTrigger>
         </TooltipTrigger>
-        <TooltipContent side="right">Delete {entityType}</TooltipContent>
+        {hasTooltipContent && (
+          <TooltipContent side="right">Delete {entityType}</TooltipContent>
+        )}
       </Tooltip>
       <DialogContent>
         <Form {...deleteForm}>

@@ -1,11 +1,15 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { UserSettingsCard } from "@/components/layout/UserSettingsCard";
 import { PaginatedProjectList } from "@/components/layout/PaginatedProjectList";
+import { ConfirmDeletionDialog } from "@/components/layout/ConfirmDeletionDialog";
 import { Typography } from "@/components/ui/typography";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import type { PaginatedProjects } from "@/@types/project";
+import type { User } from "@/@types/user";
 
 export const Route = createFileRoute("/account")({
   beforeLoad: ({ context }) => {
@@ -18,6 +22,17 @@ export const Route = createFileRoute("/account")({
 
 function Account() {
   const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
+  const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
+
+  const { data: userData } = useQuery<{ user: User }>({
+    queryKey: ["user"],
+    staleTime: 1000 * 60 * 60, // 1 hour
+    queryFn: async () => {
+      const response = await axiosPrivate.get("/users/me");
+      return response.data;
+    },
+  });
 
   // @to-do: transform infiniteQuery calls in a hook?
   const {
@@ -79,6 +94,25 @@ function Account() {
     getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 
+  const deleteUserMutation = useMutation({
+    mutationFn: async () => {
+      const response = await axiosPrivate.delete(`/users/me`);
+      return response.data;
+    },
+    onSuccess() {
+      // @to-do: logout
+
+      // @to-do: add success toast component
+      alert("User deleted!");
+      setIsDeleteUserDialogOpen(false);
+      navigate({ to: "/" });
+    },
+    onError() {
+      // @to-do: add failed toast component
+      alert("Failed to delete user");
+    },
+  });
+
   return (
     <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
       <div className="max-w-2xl mx-auto space-y-14">
@@ -123,6 +157,32 @@ function Account() {
             />
           </TabsContent>
         </Tabs>
+      </div>
+
+      <div className="max-w-2xl mx-auto space-y-4 flex flex-col items-center">
+        <Typography variant="h2" className="text-center">
+          Delete account
+        </Typography>
+
+        <Typography className="text-center">
+          Permanently remove your account and all of its projects. This action
+          is not reversible, so please continue with caution.
+        </Typography>
+
+        <ConfirmDeletionDialog
+          isOpen={isDeleteUserDialogOpen}
+          setOpen={setIsDeleteUserDialogOpen}
+          entityType="account"
+          entityName={userData?.user.name || ""}
+          deletionDescription="Your account will be deleted, along with all your projects and settings."
+          trigger={
+            <Button variant="destructive" size="xlg" className="font-bold">
+              Delete account
+            </Button>
+          }
+          hasTooltipContent={false}
+          deleteMutation={deleteUserMutation}
+        />
       </div>
     </div>
   );
