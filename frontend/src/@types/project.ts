@@ -38,3 +38,8 @@ export type EditProjectResponse = {
     tags: Tag[];
   };
 };
+
+export type CreateProjectRequestBody = {
+  repoUrl: string;
+  tagIds: number[];
+};

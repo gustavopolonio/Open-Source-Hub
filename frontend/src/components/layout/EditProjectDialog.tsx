@@ -1,22 +1,18 @@
 import {
   useMutation,
-  useQuery,
   useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from "@/lib/axios";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
+import { useTagsQuery } from "@/hooks/useTagsQuery";
 import { Typography } from "@/components/ui/typography";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  MultipleSelector,
-  type Option,
-} from "@/components/ui/multiple-selector";
+import { MultipleSelector } from "@/components/ui/multiple-selector";
 import {
   Dialog,
   DialogClose,
@@ -77,19 +73,10 @@ export function EditProjectDialog({
   const queryClient = useQueryClient();
 
   const {
-    data: tagsData,
+    tagOptionsFormatted,
     isError: isTagsError,
     isPending: isTagsPending,
-  } = useQuery({
-    staleTime: 1000 * 60 * 60, // 1 hour
-    queryKey: ["tags"],
-    queryFn: async (): Promise<{ tags: Tag[] }> => {
-      const response = await api.get(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/api/tags`
-      );
-      return response.data;
-    },
-  });
+  } = useTagsQuery();
 
   const editProjectForm = useForm<z.infer<typeof editProjectFormSchema>>({
     resolver: zodResolver(editProjectFormSchema),
@@ -176,12 +163,6 @@ export function EditProjectDialog({
     });
   }
 
-  const tagOptions: Option[] =
-    tagsData?.tags.map((tag) => ({
-      label: tag.name,
-      value: String(tag.id),
-    })) ?? [];
-
   return (
     <Dialog
       open={isOpen}
@@ -251,7 +232,7 @@ export function EditProjectDialog({
                       <FormLabel>Tags</FormLabel>
                       <FormControl>
                         <MultipleSelector
-                          defaultOptions={tagOptions}
+                          defaultOptions={tagOptionsFormatted}
                           placeholder="Select tags to the project..."
                           emptyIndicator={
                             <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">

@@ -1,17 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
+import { useTagsQuery } from "@/hooks/useTagsQuery";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { useAuth } from "@/hooks/useAuth";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PaginatedProjectList } from "@/components/layout/PaginatedProjectList";
 import { Typography } from "@/components/ui/typography";
 import { MultipleSelector } from "@/components/ui/multiple-selector";
-import type { Option } from "@/components/ui/multiple-selector";
 import { Input } from "@/components/ui/input";
 import { Icon } from "@/components/ui/icon";
 import {
@@ -30,7 +30,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import type { PaginatedProjects, Tag } from "@/@types/project";
+import type { PaginatedProjects } from "@/@types/project";
 
 type FilteredProjectsQueryParams = {
   limit: number;
@@ -71,19 +71,10 @@ function Projects() {
   });
 
   const {
-    data: tagsData,
+    tagOptionsFormatted,
     isError: isTagsError,
     isPending: isTagsPending,
-  } = useQuery({
-    staleTime: 1000 * 60 * 60, // 1 hour
-    queryKey: ["tags"],
-    queryFn: async (): Promise<{ tags: Tag[] }> => {
-      const response = await api.get(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/api/tags`
-      );
-      return response.data;
-    },
-  });
+  } = useTagsQuery();
 
   const watchedValues = useWatch({
     control: filterProjectsForm.control,
@@ -133,12 +124,6 @@ function Projects() {
     getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 
-  const tagOptions: Option[] =
-    tagsData?.tags.map((tag) => ({
-      label: tag.name,
-      value: String(tag.id),
-    })) ?? [];
-
   return (
     <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
       <Typography variant="h1" className="text-center">
@@ -161,7 +146,7 @@ function Projects() {
                 <FormItem>
                   <FormControl>
                     <MultipleSelector
-                      defaultOptions={tagOptions}
+                      defaultOptions={tagOptionsFormatted}
                       placeholder="Select tags to filter..."
                       emptyIndicator={
                         <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">

@@ -7,7 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Settings2, CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { api } from "@/lib/axios";
+import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
+import { useTagsQuery } from "@/hooks/useTagsQuery";
 import { Typography } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,8 +19,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { MultipleSelector } from "@/components/ui/multiple-selector";
-import type { Option } from "@/components/ui/multiple-selector";
-import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import {
   Command,
   CommandEmpty,
@@ -33,30 +32,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-// @to-do: these types are the same as index.tsx types. Fix it
-type Tag = {
-  id: number;
-  name: string;
-};
-
-type GetTagsResponse = {
-  tags: Tag[];
-};
-
-type GitHubRepository = {
-  name: string;
-  url: string;
-};
-
-type GetAuthUserGithubRepos = {
-  gitHubRepositories: GitHubRepository[];
-};
-
-type CreateProjectRequestBody = {
-  repoUrl: string;
-  tagIds: number[];
-};
+import type { CreateProjectRequestBody } from "@/@types/project";
+import type { GetAuthUserGithubRepos } from "@/@types/github";
 
 export const Route = createFileRoute("/projects/submit")({
   beforeLoad: ({ context }) => {
@@ -88,19 +65,10 @@ function SubmitProject() {
   const queryClient = useQueryClient();
 
   const {
-    data: tagsData,
+    tagOptionsFormatted,
     isError: isTagsError,
     isPending: isTagsPending,
-  } = useQuery({
-    staleTime: 1000 * 60 * 60, // 1 hour
-    queryKey: ["tags"],
-    queryFn: async (): Promise<GetTagsResponse> => {
-      const response = await api.get(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/api/tags`
-      );
-      return response.data;
-    },
-  });
+  } = useTagsQuery();
 
   const {
     data: reposData,
@@ -151,12 +119,6 @@ function SubmitProject() {
     const tagIds = tagOptions.map((tag) => Number(tag.value));
     createProjectMutation.mutate({ repoUrl: repositoryUrl, tagIds });
   }
-
-  const tagOptions: Option[] =
-    tagsData?.tags.map((tag) => ({
-      label: tag.name,
-      value: String(tag.id),
-    })) ?? [];
 
   return (
     <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
@@ -271,7 +233,7 @@ function SubmitProject() {
                   <FormItem>
                     <FormControl>
                       <MultipleSelector
-                        defaultOptions={tagOptions}
+                        defaultOptions={tagOptionsFormatted}
                         placeholder="Tags"
                         emptyIndicator={
                           <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
