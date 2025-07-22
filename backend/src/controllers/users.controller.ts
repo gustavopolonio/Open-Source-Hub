@@ -128,7 +128,7 @@ export async function authenticateOrRegister(
         secure: env.NODE_ENV === "production",
         httpOnly: true,
         sameSite: true,
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days
       })
       .redirect(`${env.FRONTEND_BASE_URL}/auth/callback?token=${token}`);
     return;
@@ -180,7 +180,7 @@ export async function refreshToken(req: Request, res: Response) {
         secure: env.NODE_ENV === "production",
         httpOnly: true,
         sameSite: true,
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days
       })
       .json({ token });
     return;
