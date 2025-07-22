@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/axios";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
+import { useAuth } from "@/hooks/useAuth";
 import { UserSettingsCard } from "@/components/layout/UserSettingsCard";
 import { PaginatedProjectList } from "@/components/layout/PaginatedProjectList";
 import { ConfirmDeletionDialog } from "@/components/layout/ConfirmDeletionDialog";
@@ -23,6 +25,7 @@ export const Route = createFileRoute("/account")({
 function Account() {
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
+  const { setAccessToken } = useAuth();
   const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
 
   const { data: userData } = useQuery<{ user: User }>({
@@ -99,13 +102,21 @@ function Account() {
       const response = await axiosPrivate.delete(`/users/me`);
       return response.data;
     },
-    onSuccess() {
-      // @to-do: logout
+    async onSuccess() {
+      try {
+        await api.post("/logout", {}, { withCredentials: true });
 
-      // @to-do: add success toast component
-      alert("User deleted!");
-      setIsDeleteUserDialogOpen(false);
-      navigate({ to: "/" });
+        // @to-do: add success toast component
+        alert("User deleted!");
+        setIsDeleteUserDialogOpen(false);
+        setAccessToken(null);
+        navigate({ to: "/" });
+      } catch {
+        // @to-do: add failed toast component
+        alert(
+          "Account deleted, but logout failed. Pelase clear your cookies manually."
+        );
+      }
     },
     onError() {
       // @to-do: add failed toast component
