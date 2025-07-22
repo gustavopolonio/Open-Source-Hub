@@ -6,6 +6,7 @@ import {
   getAuthenticatedUser,
   getAuthenticatedUserBookmarkedProjects,
   getAuthenticatedUserProjects,
+  logout,
   refreshToken,
   updateAuthenticatedUser,
 } from "@/controllers/users.controller";
@@ -15,6 +16,8 @@ const router = Router();
 router.get("/github/callback", authenticateOrRegister);
 
 router.patch("/token/refresh", refreshToken);
+
+router.post("/logout", logout);
 
 router.get("/users/me", verifyJwt, getAuthenticatedUser);
 

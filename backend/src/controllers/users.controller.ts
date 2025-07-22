@@ -456,3 +456,16 @@ export async function getAuthenticatedUserBookmarkedProjects(
     return;
   }
 }
+
+export async function logout(req: Request, res: Response) {
+  res
+    .status(200)
+    .clearCookie("refreshToken", {
+      path: "/",
+      secure: env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: true,
+    })
+    .json({ message: "Logged out" });
+  return;
+}
