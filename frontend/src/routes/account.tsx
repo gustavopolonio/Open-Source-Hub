@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { useAuth } from "@/hooks/useAuth";
@@ -106,21 +107,19 @@ function Account() {
       try {
         await api.post("/logout", {}, { withCredentials: true });
 
-        // @to-do: add success toast component
-        alert("User deleted!");
-        setIsDeleteUserDialogOpen(false);
+        toast.success("Account deleted");
         setAccessToken(null);
         navigate({ to: "/" });
       } catch {
-        // @to-do: add failed toast component
-        alert(
-          "Account deleted, but logout failed. Pelase clear your cookies manually."
+        toast.error(
+          "Account deleted, but logout failed. Please clear your cookies manually"
         );
+      } finally {
+        setIsDeleteUserDialogOpen(false);
       }
     },
     onError() {
-      // @to-do: add failed toast component
-      alert("Failed to delete user");
+      toast.error("Failed to delete account");
     },
   });
 

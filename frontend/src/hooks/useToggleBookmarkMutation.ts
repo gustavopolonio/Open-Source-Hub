@@ -3,6 +3,7 @@ import {
   useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import type { PaginatedProjects } from "@/@types/project";
 
@@ -63,11 +64,11 @@ export function useToggleBookmarkMutation(
       for (const [queryKey, data] of filteredQueries) {
         queryClient.setQueryData(queryKey, updateBookmarksData(data));
       }
-      // @to-do: add success toast component
+
+      toast.success(`Project ${isBookmarked ? "un" : ""}bookmarked`);
     },
     onError() {
-      // @to-do: add failed toast component
-      alert("Failed to update bookmard. Please try again.");
+      toast.error("Failed to update bookmark. Please try again");
     },
   });
 }

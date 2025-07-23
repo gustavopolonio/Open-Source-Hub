@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import z from "zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { useTagsQuery } from "@/hooks/useTagsQuery";
@@ -144,13 +145,11 @@ export function EditProjectDialog({
         queryClient.setQueryData(queryKey, updateProjectData(data));
       }
 
-      // @to-do: add success toast component
-      alert("Project updated!");
       setOpen(false);
+      toast.success("Project updated");
     },
     onError() {
-      // @to-do: add failed toast component
-      alert("Failed to update project");
+      toast.error("Failed to update project");
     },
   });
 

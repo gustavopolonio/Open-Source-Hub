@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { useAuth } from "@/hooks/useAuth";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
@@ -46,8 +47,7 @@ export function Header() {
       navigate({ to: "/" });
     },
     onError() {
-      // @to-do: add failed toast component
-      alert("Failed to logout");
+      toast.error("Failed to logout");
     },
   });
 

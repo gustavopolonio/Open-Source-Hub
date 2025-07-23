@@ -3,6 +3,7 @@ import { useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Settings2, CheckIcon, ChevronsUpDownIcon } from "lucide-react";
@@ -99,18 +100,16 @@ function SubmitProject() {
     onSuccess() {
       queryClient.refetchQueries({ queryKey: ["submitted-projects"] });
 
-      // @to-do: add success toast component
-      alert("Project submitted!");
+      toast.success("Project submitted");
       submitProjectForm.reset();
     },
     onError(error: AxiosError) {
-      // @to-do: add failed toast component
       if (error.status === 409) {
-        alert("Failed to submit project: project already submitted");
+        toast.error("Failed to submit project: project already submitted");
         return;
       }
 
-      alert("Failed to submit project");
+      toast.error("Failed to submit project");
     },
   });
 

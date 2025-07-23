@@ -3,6 +3,7 @@ import {
   useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import type { PaginatedProjects } from "@/@types/project";
 
@@ -82,11 +83,10 @@ export function useToggleVoteMutation(projectId: number, isVoted: boolean) {
         queryClient.setQueryData(queryKey, updateVotesData(data));
       }
 
-      // @to-do: add success toast component
+      toast.success(`Project ${isVoted ? "un" : "up"}voted`);
     },
     onError() {
-      // @to-do: add failed toast component
-      alert("Failed to update vote. Please try again.");
+      toast.error("Failed to update vote. Please try again");
     },
   });
 }

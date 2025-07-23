@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
@@ -65,13 +66,11 @@ export function ProjectCard({
       queryClient.refetchQueries({ queryKey: ["submitted-projects"] });
       queryClient.refetchQueries({ queryKey: ["bookmarked-projects"] });
 
-      // @to-do: add success toast component
-      alert("Project deleted!");
       setIsDeleteProjectDialogOpen(false);
+      toast.success("Project deleted");
     },
     onError() {
-      // @to-do: add failed toast component
-      alert("Failed to delete project");
+      toast.error("Failed to delete project");
     },
   });
 

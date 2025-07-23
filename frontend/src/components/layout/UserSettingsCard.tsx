@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { UserSettingsCardSkeleton } from "@/components/layout/UserSettingsCardSkeleton";
@@ -86,13 +87,11 @@ export function UserSettingsCard() {
         };
       });
 
-      // @to-do: add success toast component
-      alert("User updated!");
       setIsUpdateUserDialogOpen(false);
+      toast.success("User updated");
     },
     onError() {
-      // @to-do: add failed toast component
-      alert("Failed to update user");
+      toast.error("Failed to update user");
     },
   });
 
