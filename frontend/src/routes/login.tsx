@@ -1,6 +1,12 @@
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useSearch,
+} from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { generateAndSessionStoreCsrfToken } from "@/lib/utils";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: ({ context }) => {
@@ -12,6 +18,16 @@ export const Route = createFileRoute("/login")({
 });
 
 function Login() {
+  const search: { redirectTo: string } = useSearch({ from: "/login" });
+
+  const redirectTo =
+    search.redirectTo === "/signup" || !search.redirectTo
+      ? "/"
+      : search.redirectTo;
+
+  const csrfToken = generateAndSessionStoreCsrfToken();
+  const oauthState = btoa(JSON.stringify({ redirectTo, csrfToken }));
+
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col items-center justify-center max-w-lg mx-auto py-16 space-y-10">
       <Typography variant="h1" className="text-center">
@@ -20,7 +36,7 @@ function Login() {
       </Typography>
       <Button size="lg" variant="secondary" className="w-80 font-bold" asChild>
         <a
-          href={`${import.meta.env.VITE_GITHUB_BASE_URL}/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}`}
+          href={`${import.meta.env.VITE_GITHUB_BASE_URL}/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}&state=${encodeURIComponent(oauthState)}`}
         >
           Continue with GitHub
         </a>

@@ -152,7 +152,9 @@ export function Header() {
           </Button>
         ) : (
           <Button asChild>
-            <Link to="/login">Log in</Link>
+            <Link to="/login" search={{ redirectTo: pathname }}>
+              Log in
+            </Link>
           </Button>
         )}
       </div>
