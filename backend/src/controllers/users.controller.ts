@@ -3,7 +3,6 @@ import z from "zod";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/env";
-import { JwtPayload } from "@/@types/auth";
 import {
   authenticateWithOauth,
   encryptSymmetric,
@@ -11,6 +10,7 @@ import {
   generateRandomPassword,
   getGitHubUserInfo,
 } from "@/utils";
+import { JwtPayload } from "@/@types/auth";
 
 export async function authenticateOrRegister(
   req: Request,
@@ -18,9 +18,19 @@ export async function authenticateOrRegister(
 ): Promise<void> {
   const authenticateQuerySchema = z.object({
     code: z.string(),
+    state: z.string(),
   });
 
-  const { code } = authenticateQuerySchema.parse(req.query);
+  const { code, state } = authenticateQuerySchema.parse(req.query);
+
+  const oauthStateSchema = z.object({
+    redirectTo: z.string().startsWith("/"),
+    csrfToken: z.string().uuid(),
+  });
+
+  const { csrfToken, redirectTo } = oauthStateSchema.parse(
+    JSON.parse(atob(decodeURIComponent(state)))
+  );
 
   try {
     const { access_token: accessToken } = await generateGitHubAccessToken(code);
@@ -130,7 +140,9 @@ export async function authenticateOrRegister(
         sameSite: true,
         maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days
       })
-      .redirect(`${env.FRONTEND_BASE_URL}/auth/callback?token=${token}`);
+      .redirect(
+        `${env.FRONTEND_BASE_URL}/auth/callback?token=${token}&oauthCsrf=${csrfToken}&redirectTo=${redirectTo}`
+      );
     return;
   } catch (error) {
     if (error instanceof Error) {
