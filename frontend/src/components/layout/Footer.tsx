@@ -71,12 +71,15 @@ export function Footer() {
 
             <ul className="space-y-1">
               <li>
-                <Link to="/" className="text-sm hover:underline">
+                <Link to="/legal/terms" className="text-sm hover:underline">
                   Terms of service
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:underline">
+                <Link
+                  to="/legal/privacy-policy"
+                  className="text-sm hover:underline"
+                >
                   Privacy policy
                 </Link>
               </li>

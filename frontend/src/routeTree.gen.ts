@@ -17,6 +17,8 @@ import { Route as AccountImport } from './routes/account'
 import { Route as IndexImport } from './routes/index'
 import { Route as ProjectsIndexImport } from './routes/projects/index'
 import { Route as ProjectsSubmitImport } from './routes/projects/submit'
+import { Route as LegalTermsImport } from './routes/legal/terms'
+import { Route as LegalPrivacyPolicyImport } from './routes/legal/privacy-policy'
 import { Route as AuthCallbackImport } from './routes/auth/callback'
 
 // Create/Update Routes
@@ -54,6 +56,18 @@ const ProjectsIndexRoute = ProjectsIndexImport.update({
 const ProjectsSubmitRoute = ProjectsSubmitImport.update({
   id: '/projects/submit',
   path: '/projects/submit',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LegalTermsRoute = LegalTermsImport.update({
+  id: '/legal/terms',
+  path: '/legal/terms',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LegalPrivacyPolicyRoute = LegalPrivacyPolicyImport.update({
+  id: '/legal/privacy-policy',
+  path: '/legal/privacy-policy',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -102,6 +116,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackImport
       parentRoute: typeof rootRoute
     }
+    '/legal/privacy-policy': {
+      id: '/legal/privacy-policy'
+      path: '/legal/privacy-policy'
+      fullPath: '/legal/privacy-policy'
+      preLoaderRoute: typeof LegalPrivacyPolicyImport
+      parentRoute: typeof rootRoute
+    }
+    '/legal/terms': {
+      id: '/legal/terms'
+      path: '/legal/terms'
+      fullPath: '/legal/terms'
+      preLoaderRoute: typeof LegalTermsImport
+      parentRoute: typeof rootRoute
+    }
     '/projects/submit': {
       id: '/projects/submit'
       path: '/projects/submit'
@@ -127,6 +155,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/legal/privacy-policy': typeof LegalPrivacyPolicyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/projects/submit': typeof ProjectsSubmitRoute
   '/projects': typeof ProjectsIndexRoute
 }
@@ -137,6 +167,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/legal/privacy-policy': typeof LegalPrivacyPolicyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/projects/submit': typeof ProjectsSubmitRoute
   '/projects': typeof ProjectsIndexRoute
 }
@@ -148,6 +180,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/legal/privacy-policy': typeof LegalPrivacyPolicyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/projects/submit': typeof ProjectsSubmitRoute
   '/projects/': typeof ProjectsIndexRoute
 }
@@ -160,6 +194,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/auth/callback'
+    | '/legal/privacy-policy'
+    | '/legal/terms'
     | '/projects/submit'
     | '/projects'
   fileRoutesByTo: FileRoutesByTo
@@ -169,6 +205,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/auth/callback'
+    | '/legal/privacy-policy'
+    | '/legal/terms'
     | '/projects/submit'
     | '/projects'
   id:
@@ -178,6 +216,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/auth/callback'
+    | '/legal/privacy-policy'
+    | '/legal/terms'
     | '/projects/submit'
     | '/projects/'
   fileRoutesById: FileRoutesById
@@ -189,6 +229,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  LegalPrivacyPolicyRoute: typeof LegalPrivacyPolicyRoute
+  LegalTermsRoute: typeof LegalTermsRoute
   ProjectsSubmitRoute: typeof ProjectsSubmitRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
 }
@@ -199,6 +241,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  LegalPrivacyPolicyRoute: LegalPrivacyPolicyRoute,
+  LegalTermsRoute: LegalTermsRoute,
   ProjectsSubmitRoute: ProjectsSubmitRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
 }
@@ -218,6 +262,8 @@ export const routeTree = rootRoute
         "/login",
         "/signup",
         "/auth/callback",
+        "/legal/privacy-policy",
+        "/legal/terms",
         "/projects/submit",
         "/projects/"
       ]
@@ -236,6 +282,12 @@ export const routeTree = rootRoute
     },
     "/auth/callback": {
       "filePath": "auth/callback.tsx"
+    },
+    "/legal/privacy-policy": {
+      "filePath": "legal/privacy-policy.tsx"
+    },
+    "/legal/terms": {
+      "filePath": "legal/terms.tsx"
     },
     "/projects/submit": {
       "filePath": "projects/submit.tsx"
