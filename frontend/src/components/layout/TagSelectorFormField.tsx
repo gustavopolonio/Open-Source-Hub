@@ -1,6 +1,6 @@
 import type { Control, FieldValues, Path } from "react-hook-form";
 import { useTagsQuery } from "@/hooks/useTagsQuery";
-import { Typography } from "@/components/ui/typography";
+import { LoadFailFormField } from "@/components/layout/LoadFailFormField";
 import { MultipleSelector } from "@/components/ui/multiple-selector";
 import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
@@ -27,11 +27,7 @@ export function TagSelectorFormField<T extends FieldValues>({
   } = useTagsQuery();
 
   return isTagsError ? (
-    <div className="cursor-not-allowed h-10 px-3 flex items-center rounded-md border border-input text-base ring-offset-background md:text-sm">
-      <Typography className="text-muted-foreground ">
-        Failed to load tags
-      </Typography>
-    </div>
+    <LoadFailFormField entityName="tags" />
   ) : (
     <FormField
       control={control}
