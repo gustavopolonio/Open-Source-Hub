@@ -114,7 +114,7 @@ function Projects() {
   });
 
   return (
-    <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
+    <>
       <Typography variant="h1" className="text-center">
         Explore all available projects
       </Typography>
@@ -189,6 +189,6 @@ function Projects() {
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
       />
-    </div>
+    </>
   );
 }

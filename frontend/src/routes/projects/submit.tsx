@@ -112,8 +112,8 @@ function SubmitProject() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
-      <div className="max-w-2xl mx-auto space-y-14">
+    <>
+      <div className="max-w-2xl w-full mx-auto space-y-14">
         <div className="space-y-8">
           <Typography variant="h1" className="text-center">
             Submit your project
@@ -234,6 +234,6 @@ function SubmitProject() {
           </form>
         </Form>
       </div>
-    </div>
+    </>
   );
 }

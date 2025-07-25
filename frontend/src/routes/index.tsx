@@ -47,7 +47,7 @@ function Index() {
   });
 
   return (
-    <div className="max-w-5xl mx-auto py-16 px-4 space-y-14">
+    <>
       <div className="max-w-2xl mx-auto space-y-8">
         <Typography variant="h1" className="text-center">
           Contribute to open source projects
@@ -77,7 +77,7 @@ function Index() {
       />
 
       <div className="max-w-2xl mx-auto space-y-4">
-        <Typography variant="h2" className="text-center mt-12">
+        <Typography variant="h2" className="text-center">
           Open your code
         </Typography>
         <Typography variant="p" className="text-center">
@@ -89,10 +89,10 @@ function Index() {
             <Link to="/projects/submit">Submit your project</Link>
           </Button>
           <Button className="font-bold" size="xlg" variant="secondary" asChild>
-            <Link to="/projects/submit">Explore all</Link>
+            <Link to="/projects">Explore all</Link>
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

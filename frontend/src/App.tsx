@@ -1,6 +1,5 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider } from "./context/AuthProvider";
@@ -37,7 +36,6 @@ export function App() {
       <AuthProvider>
         <InnerApp />
         <Toaster richColors position="top-right" closeButton />
-        <ReactQueryDevtools initialIsOpen={false} />
       </AuthProvider>
     </QueryClientProvider>
   );

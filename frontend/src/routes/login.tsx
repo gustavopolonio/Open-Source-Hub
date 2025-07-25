@@ -29,7 +29,7 @@ function Login() {
   const oauthState = btoa(JSON.stringify({ redirectTo, csrfToken }));
 
   return (
-    <div className="h-[calc(100vh-64px)] flex flex-col items-center justify-center max-w-lg mx-auto py-16 space-y-10">
+    <div className="flex flex-col items-center max-w-lg w-full mx-auto space-y-10">
       <Typography variant="h1" className="text-center">
         Log in to
         <span className="block">Open Source Hub</span>
