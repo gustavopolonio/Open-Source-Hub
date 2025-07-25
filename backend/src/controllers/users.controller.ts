@@ -335,7 +335,6 @@ export async function getAuthenticatedUserProjects(
           },
         },
         tags: true,
-        // @to-do: refactor _count to votes (I think?)
         _count: {
           select: { votes: true },
         },
@@ -360,8 +359,9 @@ export async function getAuthenticatedUserProjects(
     const paginatedProjects = hasNextPage ? projects.slice(0, -1) : projects;
 
     const projectsWithVotesStatus = paginatedProjects.map(
-      ({ votes, ...rest }) => ({
+      ({ votes, _count, ...rest }) => ({
         ...rest,
+        votesCount: _count.votes,
         isVoted: votes && votes.length > 0,
       })
     );
@@ -416,7 +416,6 @@ export async function getAuthenticatedUserBookmarkedProjects(
         project: {
           include: {
             tags: true,
-            // @to-do: refactor _count to votes (I think?)
             _count: {
               select: { votes: true },
             },
@@ -442,10 +441,11 @@ export async function getAuthenticatedUserBookmarkedProjects(
     );
 
     const projectsWithVotesAndBookmarksStatus = paginatedProjects.map(
-      ({ bookmarks, votes, ...rest }) => ({
+      ({ bookmarks, votes, _count, ...rest }) => ({
         ...rest,
         isBookmarked: bookmarks && bookmarks.length > 0,
         isVoted: votes && votes.length > 0,
+        votesCount: _count.votes,
       })
     );
 

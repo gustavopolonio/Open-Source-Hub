@@ -85,7 +85,6 @@ export async function getPublicProjects(req: Request, res: Response) {
       },
       include: {
         tags: true,
-        // @to-do: refactor _count to votes (I think?)
         _count: {
           select: { votes: true },
         },
@@ -111,8 +110,9 @@ export async function getPublicProjects(req: Request, res: Response) {
     const paginatedProjects = hasNextPage ? projects.slice(0, -1) : projects;
 
     const projectsWithVotesAndBookmarksStatus = paginatedProjects.map(
-      ({ bookmarks, votes, ...rest }) => ({
+      ({ bookmarks, votes, _count, ...rest }) => ({
         ...rest,
+        votesCount: _count.votes,
         isBookmarked: bookmarks && bookmarks.length > 0,
         isVoted: votes && votes.length > 0,
       })

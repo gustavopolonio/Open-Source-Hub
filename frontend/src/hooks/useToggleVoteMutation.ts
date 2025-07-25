@@ -35,7 +35,7 @@ export function useToggleVoteMutation(projectId: number, isVoted: boolean) {
             ...page,
             projects: page.projects.map((project) => {
               if (project.id === projectId) {
-                const currentVotes = project._count.votes;
+                const currentVotes = project.votesCount;
                 const newVotesCount = context.wasVoted
                   ? Math.max(currentVotes - 1, 0)
                   : currentVotes + 1;
@@ -43,10 +43,7 @@ export function useToggleVoteMutation(projectId: number, isVoted: boolean) {
                 return {
                   ...project,
                   isVoted: !isVoted,
-                  _count: {
-                    ...project._count,
-                    votes: newVotesCount,
-                  },
+                  votesCount: newVotesCount,
                 };
               } else {
                 return project;

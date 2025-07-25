@@ -14,9 +14,7 @@ export type Project = {
   avatarUrl: string | null;
   programmingLanguage: string | null;
   tags: Tag[];
-  _count: {
-    votes: number;
-  };
+  votesCount: number;
   isBookmarked?: boolean;
   isVoted?: boolean;
 };

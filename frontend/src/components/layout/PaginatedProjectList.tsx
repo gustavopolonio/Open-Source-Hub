@@ -64,7 +64,7 @@ export function PaginatedProjectList({
                   avatarUrl={project.avatarUrl}
                   programmingLanguage={project.programmingLanguage}
                   name={project.name}
-                  votes={project._count.votes}
+                  votesCount={project.votesCount}
                   tags={project.tags}
                   isBookmarked={project.isBookmarked}
                   isVoted={project.isVoted}

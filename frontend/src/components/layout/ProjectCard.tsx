@@ -28,8 +28,7 @@ import {
 } from "@/components/ui/card";
 import type { Project } from "@/@types/project";
 
-type ProjectCardProps = Omit<Project, "_count"> & {
-  votes: number;
+type ProjectCardProps = Project & {
   variant?: "default" | "editable";
 };
 
@@ -41,7 +40,7 @@ export function ProjectCard({
   liveLink,
   avatarUrl,
   name,
-  votes,
+  votesCount,
   repoUrl,
   tags,
   variant = "default",
@@ -201,7 +200,7 @@ export function ProjectCard({
                     : "Upvotes"}
                 </TooltipContent>
               </Tooltip>
-              {votes}
+              {votesCount}
             </div>
           </div>
 
