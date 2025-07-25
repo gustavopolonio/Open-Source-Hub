@@ -38,7 +38,6 @@ function Account() {
     },
   });
 
-  // @to-do: transform infiniteQuery calls in a hook?
   const {
     data: submittedProjectsData,
     isPending: isSubmittedProjectsPending,

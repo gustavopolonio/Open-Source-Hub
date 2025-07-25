@@ -335,6 +335,7 @@ export async function getAuthenticatedUserProjects(
           },
         },
         tags: true,
+        // @to-do: refactor _count to votes (I think?)
         _count: {
           select: { votes: true },
         },
@@ -415,6 +416,7 @@ export async function getAuthenticatedUserBookmarkedProjects(
         project: {
           include: {
             tags: true,
+            // @to-do: refactor _count to votes (I think?)
             _count: {
               select: { votes: true },
             },

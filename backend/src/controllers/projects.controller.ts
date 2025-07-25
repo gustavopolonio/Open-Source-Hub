@@ -85,6 +85,7 @@ export async function getPublicProjects(req: Request, res: Response) {
       },
       include: {
         tags: true,
+        // @to-do: refactor _count to votes (I think?)
         _count: {
           select: { votes: true },
         },

@@ -79,7 +79,6 @@ export function useToggleVoteMutation(projectId: number, isVoted: boolean) {
       });
 
       for (const [queryKey, data] of filteredQueries) {
-        // @to-do: when user votes on page /projects the oerder of 'Most voted' doesnt change, because it's cached. Check this
         queryClient.setQueryData(queryKey, updateVotesData(data));
       }
 
