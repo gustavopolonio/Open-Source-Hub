@@ -82,6 +82,7 @@ interface MultipleSelectorProps {
   /** hide the clear all button. */
   hideClearAllButton?: boolean;
   startIcon?: React.ReactNode;
+  isInitialLoading: boolean;
 }
 
 export interface MultipleSelectorRef {
@@ -205,6 +206,7 @@ const MultipleSelector = React.forwardRef<
       inputProps,
       hideClearAllButton = false,
       startIcon,
+      isInitialLoading,
     }: MultipleSelectorProps,
     ref: React.Ref<MultipleSelectorRef>
   ) => {
@@ -458,7 +460,7 @@ const MultipleSelector = React.forwardRef<
       >
         <div
           className={cn(
-            "rounded-md border border-input text-base ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 md:text-sm",
+            "h-10 rounded-md border border-input text-base ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 md:text-sm",
             {
               "px-3 py-2": selected.length !== 0,
               "cursor-text": !disabled && selected.length !== 0,
@@ -540,10 +542,12 @@ const MultipleSelector = React.forwardRef<
               placeholder={
                 hidePlaceholderWhenSelected && selected.length !== 0
                   ? ""
-                  : placeholder
+                  : isInitialLoading
+                    ? `Loading ${placeholder?.toLocaleLowerCase()} ...`
+                    : placeholder
               }
               className={cn(
-                "cursor-pointer flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
+                "cursor-pointer flex-1 bg-transparent outline-none placeholder:text-muted-foreground h-10",
                 {
                   "w-full": hidePlaceholderWhenSelected,
                   "px-2 py-2": selected.length === 0,
@@ -585,8 +589,8 @@ const MultipleSelector = React.forwardRef<
                 inputRef?.current?.focus();
               }}
             >
-              {isLoading ? (
-                <>{loadingIndicator}</>
+              {isLoading || isInitialLoading ? (
+                <div className="py-3">{loadingIndicator}</div>
               ) : (
                 <>
                   {EmptyItem()}

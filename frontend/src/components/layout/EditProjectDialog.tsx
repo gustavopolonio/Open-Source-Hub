@@ -8,12 +8,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
-import { useTagsQuery } from "@/hooks/useTagsQuery";
-import { Typography } from "@/components/ui/typography";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MultipleSelector } from "@/components/ui/multiple-selector";
 import {
   Dialog,
   DialogClose,
@@ -37,12 +34,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { tagOptionsSchema } from "@/schemas/formSchemas";
 import type {
   EditProjectRequestBody,
   EditProjectResponse,
   PaginatedProjects,
   Tag,
 } from "@/@types/project";
+import { TagSelectorFormField } from "./TagSelectorFormField";
 
 type EditProjectDialogProps = {
   isOpen: boolean;
@@ -52,16 +51,12 @@ type EditProjectDialogProps = {
   liveLink: string | null;
 };
 
-const tagOptionsSchema = z.object({
-  label: z.string(),
-  value: z.string(),
-  disable: z.boolean().optional(),
-});
-
 const editProjectFormSchema = z.object({
   tagOptions: z.array(tagOptionsSchema),
   liveLink: z.string().url(),
 });
+
+type EditProjectFormValues = z.infer<typeof editProjectFormSchema>;
 
 export function EditProjectDialog({
   isOpen,
@@ -73,13 +68,7 @@ export function EditProjectDialog({
   const axiosPrivate = useAxiosPrivate();
   const queryClient = useQueryClient();
 
-  const {
-    tagOptionsFormatted,
-    isError: isTagsError,
-    isPending: isTagsPending,
-  } = useTagsQuery();
-
-  const editProjectForm = useForm<z.infer<typeof editProjectFormSchema>>({
+  const editProjectForm = useForm<EditProjectFormValues>({
     resolver: zodResolver(editProjectFormSchema),
     defaultValues: {
       tagOptions: tags.map((tag) => ({
@@ -153,7 +142,7 @@ export function EditProjectDialog({
     },
   });
 
-  function onEditProject(values: z.infer<typeof editProjectFormSchema>) {
+  function onEditProject(values: EditProjectFormValues) {
     const { liveLink, tagOptions } = values;
     const tagIds = tagOptions.map((tag) => Number(tag.value));
     editProjectMutation.mutate({
@@ -216,44 +205,10 @@ export function EditProjectDialog({
                 )}
               />
 
-              {isTagsPending ? (
-                // @to-do: check if this message ui is right
-                <Typography variant="p">Loading tags...</Typography>
-              ) : isTagsError ? (
-                // @to-do: check if this message ui is right
-                <Typography variant="p">Failed to load tags.</Typography>
-              ) : (
-                <FormField
-                  control={editProjectForm.control}
-                  name="tagOptions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tags</FormLabel>
-                      <FormControl>
-                        <MultipleSelector
-                          defaultOptions={tagOptionsFormatted}
-                          placeholder="Select tags to the project..."
-                          emptyIndicator={
-                            <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                              no results found.
-                            </p>
-                          }
-                          hidePlaceholderWhenSelected
-                          startIcon={
-                            <Icon
-                              name="settings2"
-                              size="md"
-                              outlineColor="oklch(0.5032 0 0)"
-                            />
-                          }
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+              <TagSelectorFormField<EditProjectFormValues>
+                control={editProjectForm.control}
+                name="tagOptions"
+              />
             </div>
             <DialogFooter>
               <DialogClose asChild>

@@ -5,15 +5,13 @@ import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
-import { useTagsQuery } from "@/hooks/useTagsQuery";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { useAuth } from "@/hooks/useAuth";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PaginatedProjectList } from "@/components/layout/PaginatedProjectList";
+import { TagSelectorFormField } from "@/components/layout/TagSelectorFormField";
 import { Typography } from "@/components/ui/typography";
-import { MultipleSelector } from "@/components/ui/multiple-selector";
 import { Input } from "@/components/ui/input";
-import { Icon } from "@/components/ui/icon";
 import {
   Select,
   SelectContent,
@@ -30,7 +28,16 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { tagOptionsSchema } from "@/schemas/formSchemas";
 import type { PaginatedProjects } from "@/@types/project";
+
+const filterProjectsFormSchema = z.object({
+  tagOptions: z.array(tagOptionsSchema),
+  projectName: z.string(),
+  sortBy: z.string(),
+});
+
+type FilterProjectsFormValues = z.infer<typeof filterProjectsFormSchema>;
 
 type FilteredProjectsQueryParams = {
   limit: number;
@@ -44,24 +51,12 @@ export const Route = createFileRoute("/projects/")({
   component: Projects,
 });
 
-const tagOptionsSchema = z.object({
-  label: z.string(),
-  value: z.string(),
-  disable: z.boolean().optional(),
-});
-
-const filterProjectsFormSchema = z.object({
-  tagOptions: z.array(tagOptionsSchema),
-  projectName: z.string(),
-  sortBy: z.string(),
-});
-
 function Projects() {
   const axiosPrivate = useAxiosPrivate();
   const { isAuthenticated } = useAuth();
   const axiosInstance = isAuthenticated ? axiosPrivate : api;
 
-  const filterProjectsForm = useForm<z.infer<typeof filterProjectsFormSchema>>({
+  const filterProjectsForm = useForm<FilterProjectsFormValues>({
     resolver: zodResolver(filterProjectsFormSchema),
     defaultValues: {
       tagOptions: [],
@@ -69,12 +64,6 @@ function Projects() {
       sortBy: "votes",
     },
   });
-
-  const {
-    tagOptionsFormatted,
-    isError: isTagsError,
-    isPending: isTagsPending,
-  } = useTagsQuery();
 
   const watchedValues = useWatch({
     control: filterProjectsForm.control,
@@ -132,43 +121,10 @@ function Projects() {
 
       <Form {...filterProjectsForm}>
         <form className="space-y-2">
-          {isTagsPending ? (
-            // @to-do: check if this message ui is right
-            <Typography variant="p">Loading tags...</Typography>
-          ) : isTagsError ? (
-            // @to-do: check if this message ui is right
-            <Typography variant="p">Failed to load tags.</Typography>
-          ) : (
-            <FormField
-              control={filterProjectsForm.control}
-              name="tagOptions"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <MultipleSelector
-                      defaultOptions={tagOptionsFormatted}
-                      placeholder="Select tags to filter..."
-                      emptyIndicator={
-                        <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                          no results found.
-                        </p>
-                      }
-                      hidePlaceholderWhenSelected
-                      startIcon={
-                        <Icon
-                          name="settings2"
-                          size="md"
-                          outlineColor="oklch(0.5032 0 0)"
-                        />
-                      }
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+          <TagSelectorFormField<FilterProjectsFormValues>
+            control={filterProjectsForm.control}
+            name="tagOptions"
+          />
 
           <div className="flex gap-2">
             <FormField

@@ -6,10 +6,10 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Settings2, CheckIcon, ChevronsUpDownIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
-import { useTagsQuery } from "@/hooks/useTagsQuery";
+import { TagSelectorFormField } from "@/components/layout/TagSelectorFormField";
 import { Typography } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +19,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { MultipleSelector } from "@/components/ui/multiple-selector";
 import {
   Command,
   CommandEmpty,
@@ -33,6 +32,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { tagOptionsSchema } from "@/schemas/formSchemas";
 import type { CreateProjectRequestBody } from "@/@types/project";
 import type { GetAuthUserGithubRepos } from "@/@types/github";
 
@@ -45,12 +45,6 @@ export const Route = createFileRoute("/projects/submit")({
   component: SubmitProject,
 });
 
-const tagOptionsSchema = z.object({
-  label: z.string(),
-  value: z.string(),
-  disable: z.boolean().optional(),
-});
-
 const submitProjectFormSchema = z.object({
   tagOptions: z.array(tagOptionsSchema),
   repositoryUrl: z
@@ -60,16 +54,12 @@ const submitProjectFormSchema = z.object({
     .url(),
 });
 
+type SubmitProjectFormValues = z.infer<typeof submitProjectFormSchema>;
+
 function SubmitProject() {
   const axiosPrivate = useAxiosPrivate();
   const [isComboboxOpen, setIsComboboxOpen] = useState(false);
   const queryClient = useQueryClient();
-
-  const {
-    tagOptionsFormatted,
-    isError: isTagsError,
-    isPending: isTagsPending,
-  } = useTagsQuery();
 
   const {
     data: reposData,
@@ -85,7 +75,7 @@ function SubmitProject() {
     },
   });
 
-  const submitProjectForm = useForm<z.infer<typeof submitProjectFormSchema>>({
+  const submitProjectForm = useForm<SubmitProjectFormValues>({
     resolver: zodResolver(submitProjectFormSchema),
     defaultValues: {
       tagOptions: [],
@@ -113,7 +103,7 @@ function SubmitProject() {
     },
   });
 
-  function onCreateProject(values: z.infer<typeof submitProjectFormSchema>) {
+  function onCreateProject(values: SubmitProjectFormValues) {
     const { repositoryUrl, tagOptions } = values;
     const tagIds = tagOptions.map((tag) => Number(tag.value));
     createProjectMutation.mutate({ repoUrl: repositoryUrl, tagIds });
@@ -218,39 +208,10 @@ function SubmitProject() {
               />
             )}
 
-            {isTagsPending ? (
-              // @to-do: check if this message ui is right
-              <Typography variant="p">Loading tags...</Typography>
-            ) : isTagsError ? (
-              // @to-do: check if this message ui is right
-              <Typography variant="p">Failed to load tags.</Typography>
-            ) : (
-              <FormField
-                control={submitProjectForm.control}
-                name="tagOptions"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <MultipleSelector
-                        defaultOptions={tagOptionsFormatted}
-                        placeholder="Tags"
-                        emptyIndicator={
-                          <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                            no results found.
-                          </p>
-                        }
-                        hidePlaceholderWhenSelected
-                        startIcon={
-                          <Settings2 size={20} color="oklch(0.5032 0 0)" />
-                        }
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <TagSelectorFormField<SubmitProjectFormValues>
+              control={submitProjectForm.control}
+              name="tagOptions"
+            />
 
             <Button
               type="submit"
