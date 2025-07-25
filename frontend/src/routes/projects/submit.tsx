@@ -10,8 +10,10 @@ import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAxiosPrivate } from "@/hooks/useAxiosPrivate";
 import { TagSelectorFormField } from "@/components/layout/TagSelectorFormField";
+import { LoadFailFormField } from "@/components/layout/LoadFailFormField";
 import { Typography } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Form,
   FormControl,
@@ -126,18 +128,8 @@ function SubmitProject() {
             className="space-y-2"
             onSubmit={submitProjectForm.handleSubmit(onCreateProject)}
           >
-            {isReposPending ? (
-              // @to-do: check if this message ui is right
-              // @to-do: make a component of loading like the button below
-              <Button
-                variant="outline"
-                className="w-full justify-start text-muted-foreground"
-              >
-                Loading repositories...
-              </Button>
-            ) : isReposError ? (
-              // @to-do: check if this message ui is right
-              <Typography variant="p">Failed to load repositories.</Typography>
+            {isReposError ? (
+              <LoadFailFormField entityName="repositories" />
             ) : (
               <FormField
                 control={submitProjectForm.control}
@@ -155,47 +147,65 @@ function SubmitProject() {
                             variant="outline"
                             role="combobox"
                             aria-expanded={isComboboxOpen}
-                            className={cn("justify-between", {
+                            size="lg"
+                            className={cn("justify-between px-3!", {
                               "text-muted-foreground": !field.value,
                             })}
                           >
-                            {field.value
-                              ? reposData.gitHubRepositories.find(
-                                  (repo) => repo.url === field.value
-                                )?.name
-                              : "Select a repository (github)"}
-                            <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            {isReposPending ? (
+                              "Loading repositories..."
+                            ) : (
+                              <>
+                                {field.value
+                                  ? reposData.gitHubRepositories.find(
+                                      (repo) => repo.url === field.value
+                                    )?.name
+                                  : "Select a repository (github)"}
+                                <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </>
+                            )}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="p-0" align="start">
                           <Command>
-                            <CommandInput placeholder="Search repository..." />
+                            <CommandInput
+                              placeholder="Search repository..."
+                              disabled={isReposPending}
+                            />
                             <CommandList>
-                              <CommandEmpty>No repository found.</CommandEmpty>
+                              {!isReposPending && (
+                                <CommandEmpty>
+                                  No repository found.
+                                </CommandEmpty>
+                              )}
                               <CommandGroup>
-                                {reposData.gitHubRepositories.map((repo) => (
-                                  <CommandItem
-                                    key={repo.url}
-                                    value={repo.url}
-                                    onSelect={() => {
-                                      setIsComboboxOpen(false);
-                                      submitProjectForm.setValue(
-                                        "repositoryUrl",
-                                        repo.url
-                                      );
-                                    }}
-                                  >
-                                    <CheckIcon
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        field.value === repo.url
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                    {repo.name}
-                                  </CommandItem>
-                                ))}
+                                {isReposPending ? (
+                                  <Spinner />
+                                ) : (
+                                  reposData.gitHubRepositories.map((repo) => (
+                                    <CommandItem
+                                      key={repo.url}
+                                      value={repo.url}
+                                      onSelect={() => {
+                                        setIsComboboxOpen(false);
+                                        submitProjectForm.setValue(
+                                          "repositoryUrl",
+                                          repo.url
+                                        );
+                                      }}
+                                    >
+                                      <CheckIcon
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          field.value === repo.url
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {repo.name}
+                                    </CommandItem>
+                                  ))
+                                )}
                               </CommandGroup>
                             </CommandList>
                           </Command>
