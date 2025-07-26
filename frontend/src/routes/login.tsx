@@ -1,12 +1,13 @@
+import { useState } from "react";
 import {
   createFileRoute,
   Link,
   redirect,
   useSearch,
 } from "@tanstack/react-router";
+import { generateAndSessionStoreCsrfToken } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
-import { generateAndSessionStoreCsrfToken } from "@/lib/utils";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: ({ context }) => {
@@ -19,14 +20,21 @@ export const Route = createFileRoute("/login")({
 
 function Login() {
   const search: { redirectTo: string } = useSearch({ from: "/login" });
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const redirectTo =
     search.redirectTo === "/signup" || !search.redirectTo
       ? "/"
       : search.redirectTo;
 
-  const csrfToken = generateAndSessionStoreCsrfToken();
-  const oauthState = btoa(JSON.stringify({ redirectTo, csrfToken }));
+  function handleLogin() {
+    setIsLoggingIn(true);
+
+    const csrfToken = generateAndSessionStoreCsrfToken();
+    const oauthState = btoa(JSON.stringify({ redirectTo, csrfToken }));
+
+    window.location.href = `${import.meta.env.VITE_GITHUB_BASE_URL}/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}&state=${encodeURIComponent(oauthState)}`;
+  }
 
   return (
     <div className="flex flex-col items-center max-w-lg w-full mx-auto space-y-10">
@@ -34,13 +42,18 @@ function Login() {
         Log in to
         <span className="block">Open Source Hub</span>
       </Typography>
-      <Button size="lg" variant="secondary" className="w-80 font-bold" asChild>
-        <a
-          href={`${import.meta.env.VITE_GITHUB_BASE_URL}/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}&state=${encodeURIComponent(oauthState)}`}
-        >
-          Continue with GitHub
-        </a>
+
+      <Button
+        size="lg"
+        variant="secondary"
+        className="w-80 font-bold"
+        onClick={handleLogin}
+        loading={isLoggingIn}
+        disabled={isLoggingIn}
+      >
+        Continue with GitHub
       </Button>
+
       <Typography variant="p">
         Don't have an account?{" "}
         <Button asChild variant="link" className="p-0">
