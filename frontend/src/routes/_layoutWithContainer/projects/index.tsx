@@ -47,7 +47,7 @@ type FilteredProjectsQueryParams = {
   search?: string;
 };
 
-export const Route = createFileRoute("/projects/")({
+export const Route = createFileRoute("/_layoutWithContainer/projects/")({
   component: Projects,
 });
 

@@ -4,7 +4,7 @@ import { generateAndSessionStoreCsrfToken } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 
-export const Route = createFileRoute("/signup")({
+export const Route = createFileRoute("/_layoutWithContainer/signup")({
   beforeLoad: ({ context }) => {
     if (context.isAuthenticated) {
       throw redirect({ to: "/" });

@@ -22,6 +22,7 @@ const router = createRouter({
     isAuthenticated: false,
     isLoadingAuth: true,
   },
+  notFoundMode: "root",
 });
 
 function InnerApp() {

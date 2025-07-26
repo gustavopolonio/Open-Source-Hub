@@ -8,7 +8,7 @@ import { Typography } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import type { PaginatedProjects } from "@/@types/project";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_layoutWithContainer/")({
   component: Index,
 });
 

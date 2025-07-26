@@ -3,13 +3,21 @@ import {
   createFileRoute,
   useSearch,
   useNavigate,
+  redirect,
 } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { useAuth } from "@/hooks/useAuth";
+import { Typography } from "@/components/ui/typography";
+import { Spinner } from "@/components/ui/spinner";
 
-export const Route = createFileRoute("/auth/callback")({
+export const Route = createFileRoute("/_layoutWithoutContainer/auth/callback")({
+  beforeLoad: ({ context }) => {
+    if (!context.isAuthenticated) {
+      throw redirect({ to: "/login" });
+    }
+  },
   component: AuthCallback,
 });
 
@@ -17,7 +25,7 @@ function AuthCallback() {
   const { setAccessToken } = useAuth();
   const navigate = useNavigate();
   const search: { token: string; oauthCsrf: string; redirectTo: string } =
-    useSearch({ from: "/auth/callback" });
+    useSearch({ from: "/_layoutWithoutContainer/auth/callback" });
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -54,8 +62,9 @@ function AuthCallback() {
   }, [search, navigate, setAccessToken, search.oauthCsrf]);
 
   return (
-    <div className="h-[calc(100vh-64px)] flex flex-col items-center justify-center max-w-lg mx-auto py-16 space-y-10">
-      Redirecting to Open Source Hub...
+    <div className="h-screen flex flex-col items-center justify-center mx-auto max-w-lg py-16 space-y-4">
+      <Typography>Authenticating...</Typography>
+      <Spinner />
     </div>
   );
 }

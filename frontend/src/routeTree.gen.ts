@@ -11,240 +11,309 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as SignupImport } from './routes/signup'
-import { Route as LoginImport } from './routes/login'
-import { Route as AccountImport } from './routes/account'
-import { Route as IndexImport } from './routes/index'
-import { Route as ProjectsIndexImport } from './routes/projects/index'
-import { Route as ProjectsSubmitImport } from './routes/projects/submit'
-import { Route as LegalTermsImport } from './routes/legal/terms'
-import { Route as LegalPrivacyPolicyImport } from './routes/legal/privacy-policy'
-import { Route as AuthCallbackImport } from './routes/auth/callback'
+import { Route as LayoutWithoutContainerImport } from './routes/_layoutWithoutContainer'
+import { Route as LayoutWithContainerImport } from './routes/_layoutWithContainer'
+import { Route as LayoutWithContainerIndexImport } from './routes/_layoutWithContainer/index'
+import { Route as LayoutWithContainerSignupImport } from './routes/_layoutWithContainer/signup'
+import { Route as LayoutWithContainerLoginImport } from './routes/_layoutWithContainer/login'
+import { Route as LayoutWithContainerAccountImport } from './routes/_layoutWithContainer/account'
+import { Route as LayoutWithContainerProjectsIndexImport } from './routes/_layoutWithContainer/projects/index'
+import { Route as LayoutWithoutContainerAuthCallbackImport } from './routes/_layoutWithoutContainer/auth/callback'
+import { Route as LayoutWithContainerProjectsSubmitImport } from './routes/_layoutWithContainer/projects/submit'
+import { Route as LayoutWithContainerLegalTermsImport } from './routes/_layoutWithContainer/legal/terms'
+import { Route as LayoutWithContainerLegalPrivacyPolicyImport } from './routes/_layoutWithContainer/legal/privacy-policy'
 
 // Create/Update Routes
 
-const SignupRoute = SignupImport.update({
-  id: '/signup',
-  path: '/signup',
+const LayoutWithoutContainerRoute = LayoutWithoutContainerImport.update({
+  id: '/_layoutWithoutContainer',
   getParentRoute: () => rootRoute,
 } as any)
 
-const LoginRoute = LoginImport.update({
-  id: '/login',
-  path: '/login',
+const LayoutWithContainerRoute = LayoutWithContainerImport.update({
+  id: '/_layoutWithContainer',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AccountRoute = AccountImport.update({
-  id: '/account',
-  path: '/account',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const IndexRoute = IndexImport.update({
+const LayoutWithContainerIndexRoute = LayoutWithContainerIndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => LayoutWithContainerRoute,
 } as any)
 
-const ProjectsIndexRoute = ProjectsIndexImport.update({
-  id: '/projects/',
-  path: '/projects/',
-  getParentRoute: () => rootRoute,
+const LayoutWithContainerSignupRoute = LayoutWithContainerSignupImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => LayoutWithContainerRoute,
 } as any)
 
-const ProjectsSubmitRoute = ProjectsSubmitImport.update({
-  id: '/projects/submit',
-  path: '/projects/submit',
-  getParentRoute: () => rootRoute,
+const LayoutWithContainerLoginRoute = LayoutWithContainerLoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => LayoutWithContainerRoute,
 } as any)
 
-const LegalTermsRoute = LegalTermsImport.update({
-  id: '/legal/terms',
-  path: '/legal/terms',
-  getParentRoute: () => rootRoute,
-} as any)
+const LayoutWithContainerAccountRoute = LayoutWithContainerAccountImport.update(
+  {
+    id: '/account',
+    path: '/account',
+    getParentRoute: () => LayoutWithContainerRoute,
+  } as any,
+)
 
-const LegalPrivacyPolicyRoute = LegalPrivacyPolicyImport.update({
-  id: '/legal/privacy-policy',
-  path: '/legal/privacy-policy',
-  getParentRoute: () => rootRoute,
-} as any)
+const LayoutWithContainerProjectsIndexRoute =
+  LayoutWithContainerProjectsIndexImport.update({
+    id: '/projects/',
+    path: '/projects/',
+    getParentRoute: () => LayoutWithContainerRoute,
+  } as any)
 
-const AuthCallbackRoute = AuthCallbackImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRoute,
-} as any)
+const LayoutWithoutContainerAuthCallbackRoute =
+  LayoutWithoutContainerAuthCallbackImport.update({
+    id: '/auth/callback',
+    path: '/auth/callback',
+    getParentRoute: () => LayoutWithoutContainerRoute,
+  } as any)
+
+const LayoutWithContainerProjectsSubmitRoute =
+  LayoutWithContainerProjectsSubmitImport.update({
+    id: '/projects/submit',
+    path: '/projects/submit',
+    getParentRoute: () => LayoutWithContainerRoute,
+  } as any)
+
+const LayoutWithContainerLegalTermsRoute =
+  LayoutWithContainerLegalTermsImport.update({
+    id: '/legal/terms',
+    path: '/legal/terms',
+    getParentRoute: () => LayoutWithContainerRoute,
+  } as any)
+
+const LayoutWithContainerLegalPrivacyPolicyRoute =
+  LayoutWithContainerLegalPrivacyPolicyImport.update({
+    id: '/legal/privacy-policy',
+    path: '/legal/privacy-policy',
+    getParentRoute: () => LayoutWithContainerRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
+    '/_layoutWithContainer': {
+      id: '/_layoutWithContainer'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof LayoutWithContainerImport
       parentRoute: typeof rootRoute
     }
-    '/account': {
-      id: '/account'
+    '/_layoutWithoutContainer': {
+      id: '/_layoutWithoutContainer'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof LayoutWithoutContainerImport
+      parentRoute: typeof rootRoute
+    }
+    '/_layoutWithContainer/account': {
+      id: '/_layoutWithContainer/account'
       path: '/account'
       fullPath: '/account'
-      preLoaderRoute: typeof AccountImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof LayoutWithContainerAccountImport
+      parentRoute: typeof LayoutWithContainerImport
     }
-    '/login': {
-      id: '/login'
+    '/_layoutWithContainer/login': {
+      id: '/_layoutWithContainer/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof LayoutWithContainerLoginImport
+      parentRoute: typeof LayoutWithContainerImport
     }
-    '/signup': {
-      id: '/signup'
+    '/_layoutWithContainer/signup': {
+      id: '/_layoutWithContainer/signup'
       path: '/signup'
       fullPath: '/signup'
-      preLoaderRoute: typeof SignupImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof LayoutWithContainerSignupImport
+      parentRoute: typeof LayoutWithContainerImport
     }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackImport
-      parentRoute: typeof rootRoute
+    '/_layoutWithContainer/': {
+      id: '/_layoutWithContainer/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof LayoutWithContainerIndexImport
+      parentRoute: typeof LayoutWithContainerImport
     }
-    '/legal/privacy-policy': {
-      id: '/legal/privacy-policy'
+    '/_layoutWithContainer/legal/privacy-policy': {
+      id: '/_layoutWithContainer/legal/privacy-policy'
       path: '/legal/privacy-policy'
       fullPath: '/legal/privacy-policy'
-      preLoaderRoute: typeof LegalPrivacyPolicyImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof LayoutWithContainerLegalPrivacyPolicyImport
+      parentRoute: typeof LayoutWithContainerImport
     }
-    '/legal/terms': {
-      id: '/legal/terms'
+    '/_layoutWithContainer/legal/terms': {
+      id: '/_layoutWithContainer/legal/terms'
       path: '/legal/terms'
       fullPath: '/legal/terms'
-      preLoaderRoute: typeof LegalTermsImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof LayoutWithContainerLegalTermsImport
+      parentRoute: typeof LayoutWithContainerImport
     }
-    '/projects/submit': {
-      id: '/projects/submit'
+    '/_layoutWithContainer/projects/submit': {
+      id: '/_layoutWithContainer/projects/submit'
       path: '/projects/submit'
       fullPath: '/projects/submit'
-      preLoaderRoute: typeof ProjectsSubmitImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof LayoutWithContainerProjectsSubmitImport
+      parentRoute: typeof LayoutWithContainerImport
     }
-    '/projects/': {
-      id: '/projects/'
+    '/_layoutWithoutContainer/auth/callback': {
+      id: '/_layoutWithoutContainer/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof LayoutWithoutContainerAuthCallbackImport
+      parentRoute: typeof LayoutWithoutContainerImport
+    }
+    '/_layoutWithContainer/projects/': {
+      id: '/_layoutWithContainer/projects/'
       path: '/projects'
       fullPath: '/projects'
-      preLoaderRoute: typeof ProjectsIndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof LayoutWithContainerProjectsIndexImport
+      parentRoute: typeof LayoutWithContainerImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface LayoutWithContainerRouteChildren {
+  LayoutWithContainerAccountRoute: typeof LayoutWithContainerAccountRoute
+  LayoutWithContainerLoginRoute: typeof LayoutWithContainerLoginRoute
+  LayoutWithContainerSignupRoute: typeof LayoutWithContainerSignupRoute
+  LayoutWithContainerIndexRoute: typeof LayoutWithContainerIndexRoute
+  LayoutWithContainerLegalPrivacyPolicyRoute: typeof LayoutWithContainerLegalPrivacyPolicyRoute
+  LayoutWithContainerLegalTermsRoute: typeof LayoutWithContainerLegalTermsRoute
+  LayoutWithContainerProjectsSubmitRoute: typeof LayoutWithContainerProjectsSubmitRoute
+  LayoutWithContainerProjectsIndexRoute: typeof LayoutWithContainerProjectsIndexRoute
+}
+
+const LayoutWithContainerRouteChildren: LayoutWithContainerRouteChildren = {
+  LayoutWithContainerAccountRoute: LayoutWithContainerAccountRoute,
+  LayoutWithContainerLoginRoute: LayoutWithContainerLoginRoute,
+  LayoutWithContainerSignupRoute: LayoutWithContainerSignupRoute,
+  LayoutWithContainerIndexRoute: LayoutWithContainerIndexRoute,
+  LayoutWithContainerLegalPrivacyPolicyRoute:
+    LayoutWithContainerLegalPrivacyPolicyRoute,
+  LayoutWithContainerLegalTermsRoute: LayoutWithContainerLegalTermsRoute,
+  LayoutWithContainerProjectsSubmitRoute:
+    LayoutWithContainerProjectsSubmitRoute,
+  LayoutWithContainerProjectsIndexRoute: LayoutWithContainerProjectsIndexRoute,
+}
+
+const LayoutWithContainerRouteWithChildren =
+  LayoutWithContainerRoute._addFileChildren(LayoutWithContainerRouteChildren)
+
+interface LayoutWithoutContainerRouteChildren {
+  LayoutWithoutContainerAuthCallbackRoute: typeof LayoutWithoutContainerAuthCallbackRoute
+}
+
+const LayoutWithoutContainerRouteChildren: LayoutWithoutContainerRouteChildren =
+  {
+    LayoutWithoutContainerAuthCallbackRoute:
+      LayoutWithoutContainerAuthCallbackRoute,
+  }
+
+const LayoutWithoutContainerRouteWithChildren =
+  LayoutWithoutContainerRoute._addFileChildren(
+    LayoutWithoutContainerRouteChildren,
+  )
+
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/account': typeof AccountRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/legal/privacy-policy': typeof LegalPrivacyPolicyRoute
-  '/legal/terms': typeof LegalTermsRoute
-  '/projects/submit': typeof ProjectsSubmitRoute
-  '/projects': typeof ProjectsIndexRoute
+  '': typeof LayoutWithoutContainerRouteWithChildren
+  '/account': typeof LayoutWithContainerAccountRoute
+  '/login': typeof LayoutWithContainerLoginRoute
+  '/signup': typeof LayoutWithContainerSignupRoute
+  '/': typeof LayoutWithContainerIndexRoute
+  '/legal/privacy-policy': typeof LayoutWithContainerLegalPrivacyPolicyRoute
+  '/legal/terms': typeof LayoutWithContainerLegalTermsRoute
+  '/projects/submit': typeof LayoutWithContainerProjectsSubmitRoute
+  '/auth/callback': typeof LayoutWithoutContainerAuthCallbackRoute
+  '/projects': typeof LayoutWithContainerProjectsIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/account': typeof AccountRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/legal/privacy-policy': typeof LegalPrivacyPolicyRoute
-  '/legal/terms': typeof LegalTermsRoute
-  '/projects/submit': typeof ProjectsSubmitRoute
-  '/projects': typeof ProjectsIndexRoute
+  '': typeof LayoutWithoutContainerRouteWithChildren
+  '/account': typeof LayoutWithContainerAccountRoute
+  '/login': typeof LayoutWithContainerLoginRoute
+  '/signup': typeof LayoutWithContainerSignupRoute
+  '/': typeof LayoutWithContainerIndexRoute
+  '/legal/privacy-policy': typeof LayoutWithContainerLegalPrivacyPolicyRoute
+  '/legal/terms': typeof LayoutWithContainerLegalTermsRoute
+  '/projects/submit': typeof LayoutWithContainerProjectsSubmitRoute
+  '/auth/callback': typeof LayoutWithoutContainerAuthCallbackRoute
+  '/projects': typeof LayoutWithContainerProjectsIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/account': typeof AccountRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/legal/privacy-policy': typeof LegalPrivacyPolicyRoute
-  '/legal/terms': typeof LegalTermsRoute
-  '/projects/submit': typeof ProjectsSubmitRoute
-  '/projects/': typeof ProjectsIndexRoute
+  '/_layoutWithContainer': typeof LayoutWithContainerRouteWithChildren
+  '/_layoutWithoutContainer': typeof LayoutWithoutContainerRouteWithChildren
+  '/_layoutWithContainer/account': typeof LayoutWithContainerAccountRoute
+  '/_layoutWithContainer/login': typeof LayoutWithContainerLoginRoute
+  '/_layoutWithContainer/signup': typeof LayoutWithContainerSignupRoute
+  '/_layoutWithContainer/': typeof LayoutWithContainerIndexRoute
+  '/_layoutWithContainer/legal/privacy-policy': typeof LayoutWithContainerLegalPrivacyPolicyRoute
+  '/_layoutWithContainer/legal/terms': typeof LayoutWithContainerLegalTermsRoute
+  '/_layoutWithContainer/projects/submit': typeof LayoutWithContainerProjectsSubmitRoute
+  '/_layoutWithoutContainer/auth/callback': typeof LayoutWithoutContainerAuthCallbackRoute
+  '/_layoutWithContainer/projects/': typeof LayoutWithContainerProjectsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
+    | ''
     | '/account'
     | '/login'
     | '/signup'
-    | '/auth/callback'
+    | '/'
     | '/legal/privacy-policy'
     | '/legal/terms'
     | '/projects/submit'
+    | '/auth/callback'
     | '/projects'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
+    | ''
     | '/account'
     | '/login'
     | '/signup'
-    | '/auth/callback'
+    | '/'
     | '/legal/privacy-policy'
     | '/legal/terms'
     | '/projects/submit'
+    | '/auth/callback'
     | '/projects'
   id:
     | '__root__'
-    | '/'
-    | '/account'
-    | '/login'
-    | '/signup'
-    | '/auth/callback'
-    | '/legal/privacy-policy'
-    | '/legal/terms'
-    | '/projects/submit'
-    | '/projects/'
+    | '/_layoutWithContainer'
+    | '/_layoutWithoutContainer'
+    | '/_layoutWithContainer/account'
+    | '/_layoutWithContainer/login'
+    | '/_layoutWithContainer/signup'
+    | '/_layoutWithContainer/'
+    | '/_layoutWithContainer/legal/privacy-policy'
+    | '/_layoutWithContainer/legal/terms'
+    | '/_layoutWithContainer/projects/submit'
+    | '/_layoutWithoutContainer/auth/callback'
+    | '/_layoutWithContainer/projects/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AccountRoute: typeof AccountRoute
-  LoginRoute: typeof LoginRoute
-  SignupRoute: typeof SignupRoute
-  AuthCallbackRoute: typeof AuthCallbackRoute
-  LegalPrivacyPolicyRoute: typeof LegalPrivacyPolicyRoute
-  LegalTermsRoute: typeof LegalTermsRoute
-  ProjectsSubmitRoute: typeof ProjectsSubmitRoute
-  ProjectsIndexRoute: typeof ProjectsIndexRoute
+  LayoutWithContainerRoute: typeof LayoutWithContainerRouteWithChildren
+  LayoutWithoutContainerRoute: typeof LayoutWithoutContainerRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AccountRoute: AccountRoute,
-  LoginRoute: LoginRoute,
-  SignupRoute: SignupRoute,
-  AuthCallbackRoute: AuthCallbackRoute,
-  LegalPrivacyPolicyRoute: LegalPrivacyPolicyRoute,
-  LegalTermsRoute: LegalTermsRoute,
-  ProjectsSubmitRoute: ProjectsSubmitRoute,
-  ProjectsIndexRoute: ProjectsIndexRoute,
+  LayoutWithContainerRoute: LayoutWithContainerRouteWithChildren,
+  LayoutWithoutContainerRoute: LayoutWithoutContainerRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -257,43 +326,64 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/account",
-        "/login",
-        "/signup",
-        "/auth/callback",
-        "/legal/privacy-policy",
-        "/legal/terms",
-        "/projects/submit",
-        "/projects/"
+        "/_layoutWithContainer",
+        "/_layoutWithoutContainer"
       ]
     },
-    "/": {
-      "filePath": "index.tsx"
+    "/_layoutWithContainer": {
+      "filePath": "_layoutWithContainer.tsx",
+      "children": [
+        "/_layoutWithContainer/account",
+        "/_layoutWithContainer/login",
+        "/_layoutWithContainer/signup",
+        "/_layoutWithContainer/",
+        "/_layoutWithContainer/legal/privacy-policy",
+        "/_layoutWithContainer/legal/terms",
+        "/_layoutWithContainer/projects/submit",
+        "/_layoutWithContainer/projects/"
+      ]
     },
-    "/account": {
-      "filePath": "account.tsx"
+    "/_layoutWithoutContainer": {
+      "filePath": "_layoutWithoutContainer.tsx",
+      "children": [
+        "/_layoutWithoutContainer/auth/callback"
+      ]
     },
-    "/login": {
-      "filePath": "login.tsx"
+    "/_layoutWithContainer/account": {
+      "filePath": "_layoutWithContainer/account.tsx",
+      "parent": "/_layoutWithContainer"
     },
-    "/signup": {
-      "filePath": "signup.tsx"
+    "/_layoutWithContainer/login": {
+      "filePath": "_layoutWithContainer/login.tsx",
+      "parent": "/_layoutWithContainer"
     },
-    "/auth/callback": {
-      "filePath": "auth/callback.tsx"
+    "/_layoutWithContainer/signup": {
+      "filePath": "_layoutWithContainer/signup.tsx",
+      "parent": "/_layoutWithContainer"
     },
-    "/legal/privacy-policy": {
-      "filePath": "legal/privacy-policy.tsx"
+    "/_layoutWithContainer/": {
+      "filePath": "_layoutWithContainer/index.tsx",
+      "parent": "/_layoutWithContainer"
     },
-    "/legal/terms": {
-      "filePath": "legal/terms.tsx"
+    "/_layoutWithContainer/legal/privacy-policy": {
+      "filePath": "_layoutWithContainer/legal/privacy-policy.tsx",
+      "parent": "/_layoutWithContainer"
     },
-    "/projects/submit": {
-      "filePath": "projects/submit.tsx"
+    "/_layoutWithContainer/legal/terms": {
+      "filePath": "_layoutWithContainer/legal/terms.tsx",
+      "parent": "/_layoutWithContainer"
     },
-    "/projects/": {
-      "filePath": "projects/index.tsx"
+    "/_layoutWithContainer/projects/submit": {
+      "filePath": "_layoutWithContainer/projects/submit.tsx",
+      "parent": "/_layoutWithContainer"
+    },
+    "/_layoutWithoutContainer/auth/callback": {
+      "filePath": "_layoutWithoutContainer/auth/callback.tsx",
+      "parent": "/_layoutWithoutContainer"
+    },
+    "/_layoutWithContainer/projects/": {
+      "filePath": "_layoutWithContainer/projects/index.tsx",
+      "parent": "/_layoutWithContainer"
     }
   }
 }

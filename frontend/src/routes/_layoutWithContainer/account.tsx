@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import type { PaginatedProjects } from "@/@types/project";
 import type { User } from "@/@types/user";
 
-export const Route = createFileRoute("/account")({
+export const Route = createFileRoute("/_layoutWithContainer/account")({
   beforeLoad: ({ context }) => {
     if (!context.isAuthenticated) {
       throw redirect({ to: "/login" });

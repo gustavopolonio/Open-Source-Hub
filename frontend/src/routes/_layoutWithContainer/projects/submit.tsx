@@ -38,7 +38,7 @@ import { tagOptionsSchema } from "@/schemas/formSchemas";
 import type { CreateProjectRequestBody } from "@/@types/project";
 import type { GetAuthUserGithubRepos } from "@/@types/github";
 
-export const Route = createFileRoute("/projects/submit")({
+export const Route = createFileRoute("/_layoutWithContainer/projects/submit")({
   beforeLoad: ({ context }) => {
     if (!context.isAuthenticated) {
       throw redirect({ to: "/login" });

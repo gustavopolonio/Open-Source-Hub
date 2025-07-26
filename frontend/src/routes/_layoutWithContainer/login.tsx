@@ -9,7 +9,7 @@ import { generateAndSessionStoreCsrfToken } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/_layoutWithContainer/login")({
   beforeLoad: ({ context }) => {
     if (context.isAuthenticated) {
       throw redirect({ to: "/" });
@@ -19,7 +19,9 @@ export const Route = createFileRoute("/login")({
 });
 
 function Login() {
-  const search: { redirectTo: string } = useSearch({ from: "/login" });
+  const search: { redirectTo: string } = useSearch({
+    from: "/_layoutWithContainer/login",
+  });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const redirectTo =

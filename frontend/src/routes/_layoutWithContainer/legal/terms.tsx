@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Typography } from "@/components/ui/typography";
 
-export const Route = createFileRoute("/legal/terms")({
+export const Route = createFileRoute("/_layoutWithContainer/legal/terms")({
   component: RouteComponent,
 });
 
