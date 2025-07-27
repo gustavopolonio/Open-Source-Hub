@@ -23,6 +23,7 @@ const router = createRouter({
     isLoadingAuth: true,
   },
   notFoundMode: "root",
+  scrollRestoration: true,
 });
 
 function InnerApp() {
