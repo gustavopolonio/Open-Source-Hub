@@ -13,10 +13,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prisma-seed": "prisma db seed"
+    "prisma-seed:dev": "tsx prisma/seed.ts",
+    "prisma-seed:prod": "prisma db seed"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node dist/prisma/seed.js"
   },
   "keywords": [],
   "author": "",
