@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import z from "zod";
 import axios from "axios";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "generated/prisma";
+import { Prisma } from "@/../../generated/prisma";
 import { GitHubRepo } from "@/@types/github";
 import { env } from "@/env";
 

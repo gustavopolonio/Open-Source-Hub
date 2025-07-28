@@ -6,8 +6,8 @@
   "main": "app.js",
   "scripts": {
     "dev": "tsx --watch --env-file .env src/app.ts",
-    "start": "node --env-file .env dist/app.js",
-    "build": "tsc",
+    "start": "node --env-file .env dist/src/app.js",
+    "build": "tsc && tsc-alias",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
@@ -31,6 +31,7 @@
     "jsonwebtoken": "9.0.2",
     "pg": "8.16.0",
     "pg-hstore": "2.3.4",
+    "tsc-alias": "1.8.16",
     "tsx": "4.19.4",
     "zod": "3.25.28"
   },

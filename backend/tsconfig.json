@@ -11,6 +11,10 @@
     "module": "es2022",
     "moduleResolution": "node",
   },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
+  },
   "include": ["src/**/*.ts", "prisma/**/*.ts"],
   "exclude": ["dist"]
 }

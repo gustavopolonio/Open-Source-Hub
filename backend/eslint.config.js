@@ -9,10 +9,10 @@ export default tseslint.config(
   {
     ignores: ["eslint.config.js"],
     rules: {
-      'no-trailing-spaces': 'error',
-      'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
-      'semi': ['error', 'always'],
-      'eol-last': ['error', 'always'],
+      "no-trailing-spaces": "error",
+      "no-multiple-empty-lines": ["error", { max: 1, maxEOF: 0 }],
+      semi: ["error", "always"],
+      "eol-last": ["error", "always"],
     },
     languageOptions: {
       parserOptions: {
@@ -20,5 +20,5 @@ export default tseslint.config(
         tsconfigRootDir: import.meta.dirname,
       },
     },
-  },
+  }
 );
