@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import z from "zod";
 import axios from "axios";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/../../generated/prisma";
 import { GitHubRepo } from "@/@types/github";
 import { env } from "@/env";
 
@@ -44,18 +43,18 @@ export async function getPublicProjects(req: Request, res: Response) {
   const { search, language, sort, tagIds, page, limit } =
     getProjectsQuerySchema.parse(req.query);
 
-  function orderProjectsBy(): Prisma.ProjectOrderByWithRelationInput {
+  function orderProjectsBy() {
     switch (sort) {
       case "votes":
-        return { votes: { _count: "desc" } }; // Most voted
+        return { votes: { _count: "desc" as const } }; // Most voted
       case "stars":
-        return { gitHubStars: "desc" }; // Most GitHub stars
+        return { gitHubStars: "desc" as const }; // Most GitHub stars
       case "github_created_at_desc":
-        return { gitHubCreatedAt: "desc" }; // Newest first
+        return { gitHubCreatedAt: "desc" as const }; // Newest first
       case "github_created_at_asc":
-        return { gitHubCreatedAt: "asc" }; // Oldest first
+        return { gitHubCreatedAt: "asc" as const }; // Oldest first
       default:
-        return { votes: { _count: "desc" } }; // Most voted
+        return { votes: { _count: "desc" as const } }; // Most voted
     }
   }
 
@@ -389,15 +388,6 @@ export async function bookmarkProject(req: Request, res: Response) {
     res.status(201).json({ message: "Project bookmarked successfully" });
     return;
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      res
-        .status(409)
-        .json({ message: "Project already bookmarked by this user" });
-    }
-
     if (error instanceof Error) {
       res.status(400).send({ message: error });
       return;
@@ -437,15 +427,6 @@ export async function unbookmarkProject(req: Request, res: Response) {
     res.status(200).json({ message: "Project bookmark removed" });
     return;
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
-      res
-        .status(409)
-        .json({ message: "Project is not bookmarked by this user" });
-    }
-
     if (error instanceof Error) {
       res.status(400).send({ message: error });
       return;
@@ -486,13 +467,6 @@ export async function voteOnProject(req: Request, res: Response) {
     res.status(201).json({ message: "Project voted successfully" });
     return;
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      res.status(409).json({ message: "Project already voted by this user" });
-    }
-
     if (error instanceof Error) {
       res.status(400).send({ message: error });
       return;
@@ -532,13 +506,6 @@ export async function unvoteOnProject(req: Request, res: Response) {
     res.status(200).json({ message: "Project vote removed" });
     return;
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
-      res.status(409).json({ message: "Project is not voted by this user" });
-    }
-
     if (error instanceof Error) {
       res.status(400).send({ message: error });
       return;
