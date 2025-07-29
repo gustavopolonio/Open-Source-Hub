@@ -44,7 +44,7 @@ function Signup() {
       </Button>
 
       <Typography variant="p">
-        Don't have an account?{" "}
+        Already have an account?{" "}
         <Button asChild variant="link" className="p-0">
           <Link to="/login" search={{ redirectTo: "/" }}>
             Log in
