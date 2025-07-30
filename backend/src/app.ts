@@ -1,6 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import helmet from "helmet";
 import { env } from "./env";
 import { usersRoutes } from "./routes/users.routes";
 import { githubRoutes } from "./routes/github.routes";
@@ -11,6 +12,7 @@ import { globalLimiter } from "./middlewares/rate-limiters";
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
 app.use(
   cors({
     origin: env.FRONTEND_BASE_URL,
