@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { verifyJwt } from "@/middlewares/verify-jwt";
+import { loginLimiter } from "@/middlewares/rate-limiters";
 import {
   authenticateOrRegister,
   deleteAuthenticatedUser,
@@ -13,7 +14,7 @@ import {
 
 const router = Router();
 
-router.get("/github/callback", authenticateOrRegister);
+router.get("/github/callback", loginLimiter, authenticateOrRegister);
 
 router.patch("/token/refresh", refreshToken);
 
