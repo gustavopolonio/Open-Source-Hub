@@ -22,7 +22,7 @@ export async function authenticateOrRegister(
   });
 
   const { code, state } = authenticateQuerySchema.parse(req.query);
-  console.log("IP from request:", req.ip);
+
   const oauthStateSchema = z.object({
     redirectTo: z.string().startsWith("/"),
     csrfToken: z.string().uuid(),
