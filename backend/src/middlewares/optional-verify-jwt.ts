@@ -27,9 +27,7 @@ export function optionalVerifyJwt(
       };
       return next();
     } catch {
-      req.user = {
-        userId: undefined,
-      };
+      res.status(401).json({ error: "Invalid token" });
     }
   } else {
     req.user = {
