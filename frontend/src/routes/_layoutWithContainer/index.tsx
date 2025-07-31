@@ -35,7 +35,7 @@ function Index() {
         `${import.meta.env.VITE_BACKEND_BASE_URL}/projects`,
         {
           params: {
-            limit: 6,
+            limit: 15,
             page: pageParam,
           },
         }

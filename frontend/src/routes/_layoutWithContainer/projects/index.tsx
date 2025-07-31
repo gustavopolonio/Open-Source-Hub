@@ -90,7 +90,7 @@ function Projects() {
       const tagIds = tagOptions?.map((tag) => tag.value).join(",");
 
       const params: FilteredProjectsQueryParams = {
-        limit: 6,
+        limit: 15,
         page: pageParam,
         sort: sortBy,
       };
