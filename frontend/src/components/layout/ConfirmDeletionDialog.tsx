@@ -119,7 +119,7 @@ export function ConfirmDeletionDialog({
                 name="confirmationInput"
                 render={({ field }) => (
                   <FormItem className="w-full">
-                    <FormLabel>
+                    <FormLabel className="inline leading-4">
                       Enter the {entityType} name <b>{entityName}</b> to
                       continue
                     </FormLabel>

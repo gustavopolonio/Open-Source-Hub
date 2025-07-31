@@ -56,7 +56,7 @@ function Index() {
           Open Source Hub is a platform that connects developers with
           open-source opportunities effectively
         </Typography>
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 max-xs:flex-col">
           <Button className="font-bold" size="xlg" asChild>
             <Link to="/projects">Browse projects</Link>
           </Button>
@@ -84,7 +84,7 @@ function Index() {
           Every great contribution starts with an open repository. Share your
           project and collaborate with developers around the world.
         </Typography>
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 max-xs:flex-col">
           <Button className="font-bold" size="xlg">
             <Link to="/projects/submit">Submit your project</Link>
           </Button>

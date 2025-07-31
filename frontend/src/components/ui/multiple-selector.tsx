@@ -460,9 +460,9 @@ const MultipleSelector = React.forwardRef<
       >
         <div
           className={cn(
-            "h-10 rounded-md border border-input text-base ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 md:text-sm",
+            "rounded-md border border-input text-base ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 md:text-sm",
             {
-              "px-3 py-2": selected.length !== 0,
+              "px-3": selected.length !== 0,
               "cursor-text": !disabled && selected.length !== 0,
             },
             className
@@ -473,9 +473,12 @@ const MultipleSelector = React.forwardRef<
           }}
         >
           <div
-            className={cn("h-full relative flex flex-wrap pr-9", {
-              "gap-1": selected.length !== 0,
-            })}
+            className={cn(
+              "min-h-10 relative flex flex-wrap pr-9 content-center py-2",
+              {
+                "gap-1": selected.length !== 0,
+              }
+            )}
           >
             {startIcon && selected.length === 0 && (
               <div className="flex items-center pl-3">{startIcon}</div>
@@ -547,10 +550,10 @@ const MultipleSelector = React.forwardRef<
                     : placeholder
               }
               className={cn(
-                "cursor-pointer flex-1 bg-transparent outline-none placeholder:text-muted-foreground h-10",
+                "cursor-pointer flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
                 {
                   "w-full": hidePlaceholderWhenSelected,
-                  "px-2 py-2": selected.length === 0,
+                  "px-2": selected.length === 0,
                   "ml-1": selected.length !== 0,
                 },
                 inputProps?.className

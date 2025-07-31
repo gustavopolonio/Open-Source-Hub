@@ -126,7 +126,7 @@ function Projects() {
             name="tagOptions"
           />
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 max-xs:flex-col">
             <FormField
               control={filterProjectsForm.control}
               name="projectName"
@@ -155,7 +155,7 @@ function Projects() {
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="min-w-[170px] min-h-10">
+                      <SelectTrigger className="min-w-[170px] min-h-10 max-xs:w-full">
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
                     </FormControl>

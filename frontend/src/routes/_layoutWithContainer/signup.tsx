@@ -35,7 +35,7 @@ function Signup() {
       <Button
         size="lg"
         variant="secondary"
-        className="w-80 font-bold"
+        className="w-80 max-w-full font-bold"
         onClick={handleSignup}
         loading={isSigningUp}
         disabled={isSigningUp}
