@@ -1,5 +1,6 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { Toaster } from "sonner";
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider } from "./context/AuthProvider";
@@ -12,7 +13,16 @@ declare module "@tanstack/react-router" {
   }
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        const axiosError = error as AxiosError;
+        return axiosError?.response?.status !== 401 && failureCount < 3;
+      },
+    },
+  },
+});
 
 const router = createRouter({
   routeTree,
