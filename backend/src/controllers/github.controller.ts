@@ -33,13 +33,74 @@ export async function getAuthenticatedUserGithubRepos(
       userOauth.tagEncrypt
     );
 
-    const { data: gitHubRepositories } = await axios.get<GitHubRepo[]>(
-      `${env.GITHUB_BASE_URL}/user/repos`,
-      {
-        headers: {
-          Authorization: `Bearer ${gitHubAccessToken}`,
-        },
+    function parseData(
+      data:
+        | GitHubRepo[]
+        | {
+            incomplete_results?: unknown;
+            repository_selection?: unknown;
+            total_count?: number;
+            [key: string]: unknown;
+          }
+    ) {
+      if (Array.isArray(data)) {
+        return data;
       }
+
+      // Some endpoints respond with 204 No Content instead of empty array when there is no data. In that case, return an empty array.
+      if (!data) {
+        return [];
+      }
+
+      // Otherwise, the array of items that we want is in an object
+      // Delete keys that don't include the array of items
+      const copy = { ...data };
+      delete copy.incomplete_results;
+      delete copy.repository_selection;
+      delete copy.total_count;
+
+      // Pull out the array of items
+      const namespaceKey = Object.keys(copy)[0];
+      const items = copy[namespaceKey];
+
+      if (Array.isArray(items)) {
+        return items as GitHubRepo[];
+      }
+
+      return [];
+    }
+
+    async function getPaginatedReposData(url: string): Promise<GitHubRepo[]> {
+      const nextPattern = /(?<=<)([\S]*)(?=>; rel="Next")/i;
+      let pagesRemaining = true;
+      let data: GitHubRepo[] = [];
+
+      while (pagesRemaining) {
+        const response = await axios.get<GitHubRepo[]>(`${url}`, {
+          headers: {
+            Authorization: `Bearer ${gitHubAccessToken}`,
+          },
+          params: {
+            per_page: 100,
+          },
+        });
+
+        const parsedData = parseData(response.data);
+        data = [...data, ...parsedData];
+
+        const linkHeader = response.headers.link;
+        pagesRemaining = linkHeader && linkHeader.includes(`rel="next"`);
+
+        if (pagesRemaining) {
+          url = linkHeader.match(nextPattern)[0];
+        }
+      }
+
+      return data;
+    }
+
+    const gitHubRepositories = await getPaginatedReposData(
+      `${env.GITHUB_BASE_URL}/user/repos`
     );
 
     const gitHubRepositoriesMapped = gitHubRepositories.map((repo) => ({
