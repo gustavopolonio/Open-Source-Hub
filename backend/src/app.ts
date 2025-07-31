@@ -10,6 +10,9 @@ import { apiRoutes } from "./routes/api.routes";
 import { globalLimiter } from "./middlewares/rate-limiters";
 
 const app = express();
+
+app.set("trust proxy", 1);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
